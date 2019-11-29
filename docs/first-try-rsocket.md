@@ -78,6 +78,8 @@ Frame => Stream ID: 1 Type: CANCEL Flags: 0b0 Length: 6
 
 > There will be some additional output on the server. This is related to how the communication was setup.
 
+If you'd like to see more than just the word 'A' in the client output, increase the `--requestn=1` setting to a higher number (such as 20) and run the command again.
+
 ## Wrapping Up
 
 That's it, your first foray into the world of RSocket was super-simple.  You built the `rsocket-cli` tool, setup a server, attached a client, and had them both talk to each other. 
