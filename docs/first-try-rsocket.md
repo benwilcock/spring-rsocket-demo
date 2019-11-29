@@ -78,13 +78,13 @@ Frame => Stream ID: 1 Type: CANCEL Flags: 0b0 Length: 6
 
 > There will be some additional output on the server. This is related to how the communication was setup.
 
-If you'd like to see more than just the word 'A' in the client output, increase the `--requestn=1` setting to a higher number (such as 20) and run the command again.
+If you'd like to see more than just the word 'A' in the client output, increase the `--requestn=1` setting to a higher number (such as 20) and run the command again. You should see a longer list of words on the client-side, and much more debug output on the server-side.
 
 ## Wrapping Up
 
 That's it, your first foray into the world of RSocket was super-simple.  You built the `rsocket-cli` tool, setup a server, attached a client, and had them both talk to each other. 
 
-This proved that RSocket is working and now we're ready to delve deeper into RSocket development with Java and Spring.
+This proved that RSocket is working correctly and now we're ready to delve deeper into the topic of using Spring with RSocket.
 
 [adopt-open-jdk]: https://adoptopenjdk.net/
 [rsocket-cli]: https://github.com/rsocket/rsocket-cli
