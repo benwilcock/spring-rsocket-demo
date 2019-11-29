@@ -1,12 +1,12 @@
 # Getting Started with RSocket
 
-Our journey into [RSocket][rsocket] can begin quickly without needing to write any code. With the `rsocket-cli` tool we can setup a simple server and attach a client to it before streaming some data between the them.
+Our journey into [RSocket][rsocket] can begin without needing to write a single line of code. With the `rsocket-cli` tool we can setup a simple server and attach a client to it before streaming some data between the them.
 
 ## What You'll Need
 
 #### Java 8
 
-To follow along you'll need Java 8 installed on your PC. You can find out if you have Java 8 by opening a command-line and typing `java -version`. If you don't have Java 8, you can get it from [AdoptOpenJDK][adopt-open-jdk]. If you're a developer, you might want to consider using [SDKMan][sdkman].
+To follow along with this tutorial you'll need Java 8 installed on your PC. You can find out if you have Java 8 by opening a command-line and typing `java -version`. If you don't have Java 8 already, you can get it from [AdoptOpenJDK][adopt-open-jdk]. If you're a developer, you might want to consider using [SDKMan][sdkman].
 
 #### Git
 
@@ -62,7 +62,7 @@ Let's create an RSocket client that will ask for a stream of words from the Word
 ./rsocket-cli --stream --setup=0 --input=0 --requestn=1 tcp://localhost:8765
 ```
 
-The client will request a stream containing just a single word. You can see how this works if you examine the command: `--stream requestn=1'.
+The client will request a stream containing just a single word. You can see how this works if you examine the command: `--stream requestn=1`.
 
 The server will respond with a single word - `A` - which the client will print on the screen.  The server will print out the debug of the data that it sent, which will look something like this:
 
@@ -76,7 +76,7 @@ The server will respond with a single word - `A` - which the client will print o
 Frame => Stream ID: 1 Type: CANCEL Flags: 0b0 Length: 6
 ```
 
-> There will be some additional output on the server which is related to how the communication was setup.
+> There will be some additional output on the server. This is related to how the communication was setup.
 
 ## Wrapping Up
 
