@@ -10,18 +10,24 @@ In this tutorial we will use the RSocket-CLI from before, and use it to communic
 
 There is very little of note in the Spring Boot RSocket server, but there are some things that help us bootstrap and get under way.
 
-First, the `pom.xml`.
+#### The Project File.
+
+`pom.xml`
 
 I used the [Spring initializr (start.spring.io)][initializr] to build the project. Things of note here are that I'm using Spring Boot SNAPSHOT 2.2.2 because (at the time of writing) this has the best RSocket feature set. I'm selecting the dependencies `Lombok` and `RSocket` only. I haven't had to include any of the traditional "Web" components as they're not required.
 
-Second, the `application.properties`.
+#### The Application Properties.
+
+`application.properties`
 
 ```java
 spring.main.lazy-initialization=true
 spring.rsocket.server.port=7000
 ```
 
-Third, the `@Controller`.
+#### The Code.
+
+Of note in the code is the `CommandRSocketController`. This class is decorated as a Spring Boot `@Controller`. It contains a single method called `runCommand()` which is decorated with the `@MessageMapping("command")` annotation. This annotation declares that messages containing the **route** 'command' should routed to this method.
 
 ```java
 @Controller
@@ -35,9 +41,11 @@ public class CommandRSocketController {
 }
 ```
 
-Finally, there are a couple of Lombok `@Data` classes which are used to model the server request and response. They are fairly trivial in nature as you can see if you explore the code. You don't need to use Lombok if you don't want to, regular Java 'beans' are just as good.
+In the code, there is also a couple of [Lombok][lombok] `@Data` classes which are used to model the server request and response messages. They are fairly trivial in nature as you will see if you explore the code. 
 
-Let's start the server.
+> You don't need to use Lombok if you don't want to, regular Java 'beans' are just as good.
+
+#### Let's Start The Server.
 
 ```bash
 cd rsocket-server
