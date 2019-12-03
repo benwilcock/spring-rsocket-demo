@@ -12,38 +12,41 @@ To follow along with this tutorial you'll need Java 8 installed on your PC. You 
 
 You'll also need `git`, but there is a workaround if you don't have it. 
 
-## Step 1: Build The RSocket CLI
+#### Bash/ZSH
+
+There are some scripts provided that require a Linux terminal to run. If you're on Windows, you can use [Git Bash][gitbash] or you can check out the scripts and apply some of your Windows Command Prompt expertise to get them running.
+
+## Step 1: Checkout The Code And Build The RSocket CLI
 
 Because the RSocket-CLI tool is for developers, it comes as source code rather than as a ready compiled executable program. This means you have to build the `rsocket-cli` tool on your computer before you can use it.
 
-> If you have a Mac OS computer with Homebrew installed, you have the option of install the `rsocket-cli` without having to build it yourself. The instructions are on the [RSocket-CLI GitHub project page][rsocket-cli].
-
-First, clone the RSocket CLI code into a folder on your computer.
+First, clone the code repository for this tutorial into a folder on your computer:
 
 ```bash
-git clone https://github.com/rsocket/rsocket-cli.git
+git clone https://github.com/benwilcock/spring-rsocket-demo.git
 ```
 
-> If you don't have `git`, you can visit the [rsocket-cli GitHub page][rsocket-cli] where you can choose to Download ZIP. Once you have the Zip archive, unpack it and continue to the next step.
-
-Next, build the `rsocket-cli` tool with the following command.
+Next, build the `rsocket-cli` tool with the following command:
 
 ```bash
-cd rsocket-cli
-./rsocket-cli --help
+source get-rsocket-cli.sh
 ```
 
-> This command might take some time as the build need to download the Gradle Wrapper and depends on a number of Java libraries. Access to the internet will be required.
+> This script might take some time. The Gradle Wrapper is required to build the `rsocket-cli` project, and the project itself depends on a number of other libraries. These downloads may take a while.
+
+> The script creates a temporary alias for the `rsocket-cli`. 
 
 Once the `rsocket-cli` is built, you are ready to try [RSocket][rsocket].
 
-## Step 2: Start The RSocket Server
+## Step 2: Start The RSocket-CLI Server
 
-You can create a simple RSocket server using the `rsocket-cli` and Ubuntu's built in dictionary of words. This server will sit an wait for requests to come in, and them respond using the data in the dictionary.
+You can create a simple RSocket server using the `rsocket-cli` and Ubuntu's built in dictionary of words. This server will sit an wait for requests to come in, and them respond using the data in the dictionary. 
 
 ```bash
-./rsocket-cli -i=@/usr/share/dict/words --server --debug tcp://localhost:8765
+rsocket-cli -i=@/usr/share/dict/words --server --debug tcp://localhost:8765 &
 ```
+
+> The ampersand ("&") is important, it means to 'run this process in the background'. Make a note of the process number given (e.g. [2]24398), you'll need it later to kill the process.
 
 > If you don't have Ubuntu, create a plain text file with one word per line and use this file as your input in the command (`rsocket-cli -i=@/filename.txt ...`).
 > ```text
@@ -54,12 +57,12 @@ You can create a simple RSocket server using the `rsocket-cli` and Ubuntu's buil
 > etc.
 > ```
 
-## Step 3: Attach An RSocket Client
+## Step 3: Attach The RSocket-CLI Client
 
-Let's create an RSocket client that will ask for a stream of words from the Word Server over RSocket.
+Next, let's create an RSocket client that will ask for a stream of words from the Word Server over the RSocket protocol.
 
 ```bash
-./rsocket-cli --stream --setup=0 --input=0 --requestn=1 tcp://localhost:8765
+rsocket-cli --stream --setup=0 --input=0 --requestn=1 tcp://localhost:8765
 ```
 
 The client will request a stream containing just a single word. You can see how this works if you examine the command: `--stream requestn=1`.
@@ -82,6 +85,12 @@ If you'd like to see more than just the word 'A' in the client output, increase 
 
 ## Wrapping Up
 
+Kill the RSocket server using the PID you were given. If you lost it, type 'ps' and look for the number of the process labelled `Java`.
+
+```bash
+kill -SIGTERM [pid]
+```
+
 That's it, your first foray into the world of RSocket was super-simple.  You built the `rsocket-cli` tool, setup a server, attached a client, and had them both talk to each other. 
 
 This proved that RSocket is working correctly and now we're ready to delve deeper into the topic of using Spring with RSocket.
@@ -90,3 +99,4 @@ This proved that RSocket is working correctly and now we're ready to delve deepe
 [rsocket-cli]: https://github.com/rsocket/rsocket-cli
 [rsocket]: http://rsocket.io/
 [sdkman]: https://sdkman.io/
+[gitbash]: https://gitforwindows.org/
