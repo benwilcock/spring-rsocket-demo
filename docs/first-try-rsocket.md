@@ -1,26 +1,24 @@
-# Getting Started with RSocket
+# RSocket No Code Quickstart
 
-Our journey into [RSocket][rsocket] can begin without needing to write a single line of code. With the `rsocket-cli` tool we can setup a simple server and attach a client to it before streaming some data between the them.
+## Problem
 
-## What You'll Need
+Getting to know new tech can take a while. Sometimes you have to start new IDE projects and write new code before you see something that actually works. 
 
-#### Java 8
+## Solution
 
-To follow along with this tutorial you'll need Java 8 installed on your PC. You can find out if you have Java 8 by opening a command-line and typing `java -version`. If you don't have Java 8 already, you can get it from [AdoptOpenJDK][adopt-open-jdk]. If you're a developer, you might want to consider using [SDKMan][sdkman].
+The solution is to use code that's already written! With pre-prepared code you can see something working quickly without having to invest tons of time and effort. Nice.
 
-#### Git
+## How To Do It
 
-You'll also need `git`, but there is a workaround if you don't have it. 
+Your journey into [RSocket][rsocket] can begin without you writing a single line of code. With the `rsocket-cli` tool we can setup a simple server, attach a client to it, and send some data between the them in a few minutes.
 
-#### Bash/ZSH
+> Before you start, check you have all the [prerequisites][pre] installed.
 
-There are some scripts provided that require a Linux terminal to run. If you're on Windows, you can use [Git Bash][gitbash] or you can check out the scripts and apply some of your Windows Command Prompt expertise to get them running.
+#### Step 1: Checkout The Code And Build The RSocket CLI
 
-## Step 1: Checkout The Code And Build The RSocket CLI
+Because the RSocket-CLI tool is for developers, it comes as source code rather than as a ready compiled executable program. This means you have to build the `rsocket-cli` tool on your computer before you can use it. Fortunately that's quick and relatively simple process.
 
-Because the RSocket-CLI tool is for developers, it comes as source code rather than as a ready compiled executable program. This means you have to build the `rsocket-cli` tool on your computer before you can use it.
-
-First, clone the code repository for this tutorial into a folder on your computer:
+First, using [Git][pre], clone the code repository for this tutorial into a folder on your computer:
 
 ```bash
 git clone https://github.com/benwilcock/spring-rsocket-demo.git
@@ -32,42 +30,37 @@ Next, build the `rsocket-cli` tool with the following command:
 source get-rsocket-cli.sh
 ```
 
-> This script might take some time. The Gradle Wrapper is required to build the `rsocket-cli` project, and the project itself depends on a number of other libraries. These downloads may take a while.
+> This script might take some time. The Gradle Wrapper is required to build the `rsocket-cli` project, and the project itself depends on a number of other libraries. These downloads may take a while. It depends.
 
-> The script creates a temporary alias for the `rsocket-cli`. 
+> Notice I'm using the `source` command. This is because the script creates a temporary alias called `rsocket-cli` which you will use in later steps.
 
-Once the `rsocket-cli` is built, you are ready to try [RSocket][rsocket].
+Once the `rsocket-cli` is built, it should output the `--help` text to the terminal window. You are now ready to practice with [RSocket][rsocket].
 
-## Step 2: Start The RSocket-CLI Server
+#### Step 2: Start An RSocket Server
 
-You can create a simple RSocket server using the `rsocket-cli` and Ubuntu's built in dictionary of words. This server will sit an wait for requests to come in, and them respond using the data in the dictionary. 
-
-```bash
-rsocket-cli -i=@/usr/share/dict/words --server --debug tcp://localhost:8765 &
-```
-
-> The ampersand ("&") is important, it means to 'run this process in the background'. Make a note of the process number given (e.g. [2]24398), you'll need it later to kill the process.
-
-> If you don't have Ubuntu, create a plain text file with one word per line and use this file as your input in the command (`rsocket-cli -i=@/filename.txt ...`).
-> ```text
-> A
-> Aaron
-> Abbot
-> Abby
-> etc.
-> ```
-
-## Step 3: Attach The RSocket-CLI Client
-
-Next, let's create an RSocket client that will ask for a stream of words from the Word Server over the RSocket protocol.
+You can create a basic RSocket server using the `rsocket-cli` and a simple multiline text file (such as Ubuntu's built in dictionary of words in `/usr/share/dict/words`). This server will sit an wait for requests to come in, and then respond to them using the data from the dictionary. 
 
 ```bash
-rsocket-cli --stream --setup=0 --input=0 --requestn=1 tcp://localhost:8765
+rsocket-cli -i=@/usr/share/dict/words --server tcp://localhost:8765 &
 ```
 
-The client will request a stream containing just a single word. You can see how this works if you examine the command: `--stream requestn=1`.
+> The ampersand ("&") is important, it means to 'run this process in the background'. Make a note of the process number given (e.g. [2]24398), you'll need it when we tidy up later.
 
-The server will respond with a single word - `A` - which the client will print on the screen.  The server will print out the debug of the data that it sent, which will look something like this:
+> If you don't have Ubuntu, a dummy plain text file called `words.txt` has been provided in the correct format. Use this file as your input in the command above (`rsocket-cli -i=@words.txt ...`).
+
+#### Step 3: Attach An RSocket Client
+
+Next, you should create an RSocket client and ask for a stream of words from the RSocket Server. These words will be streamed over TCP using the [RSocket][rsocket] protocol.
+
+```bash
+rsocket-cli --debug --stream --i="" --requestn=1 tcp://localhost:8765
+```
+
+The rsocket-cli will act as a client and request a stream containing just one word. The server will respond with a single word - `A` - which the client will print on the screen.
+
+You can see how this works if you examine the command. Streaming mode is set with `--stream` and the number of words to send in the stream is set with `--requestn=1`. 
+
+The client will print out the debug information of the data that it has received, which will look something like this:
 
 ```text
          +-------------------------------------------------+
@@ -79,24 +72,30 @@ The server will respond with a single word - `A` - which the client will print o
 Frame => Stream ID: 1 Type: CANCEL Flags: 0b0 Length: 6
 ```
 
-> There will be some additional output on the server. This is related to how the communication was setup.
+If you'd like to see more output, increase the `--requestn=1` setting to a higher number (such as 20) and run the command again. You should see a longer list of words on the client-side. If you omit `--requestn=1` you will get all the data available.
 
-If you'd like to see more than just the word 'A' in the client output, increase the `--requestn=1` setting to a higher number (such as 20) and run the command again. You should see a longer list of words on the client-side, and much more debug output on the server-side.
+#### Tidy Up
 
-## Wrapping Up
-
-Kill the RSocket server using the PID you were given. If you lost it, type 'ps' and look for the number of the process labelled `Java`.
+When you're done experimenting, kill the RSocket server process using the PID you were given. 
 
 ```bash
 kill -SIGTERM [pid]
 ```
 
+If you lost the PID, type 'ps' and look for the number (PID) of a process labelled `Java`.
+
+## How it works
+
+In this recipe, the `rsocket-cli` is started twice, in a different mode each time. The first time we start the tool it's started in server mode. The second time we start the tool it's acting as a regular client.
+
+The client talks to the server using RSocket over TCP. It asks the server to send it one item using RSocket's 'stream' mode. The server responds, sending one item back to the client. The details are logged to the terminal because the `--debug` option is ON in the client.
+
+## Final Thoughts
+
 That's it, your first foray into the world of RSocket was super-simple.  You built the `rsocket-cli` tool, setup a server, attached a client, and had them both talk to each other. 
 
-This proved that RSocket is working correctly and now we're ready to delve deeper into the topic of using Spring with RSocket.
+If you followed this recipe, you proved that RSocket is working correctly for you and now we're ready to delve deeper into the topic of using Spring with RSocket.
 
-[adopt-open-jdk]: https://adoptopenjdk.net/
 [rsocket-cli]: https://github.com/rsocket/rsocket-cli
 [rsocket]: http://rsocket.io/
-[sdkman]: https://sdkman.io/
-[gitbash]: https://gitforwindows.org/
+[pre]: ./prerequisites.md
