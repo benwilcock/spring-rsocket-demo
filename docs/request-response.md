@@ -1,4 +1,4 @@
-# RSocket Spring Boot Server
+# Request Response With Spring Boot RSocket Server
 
 In this recipe you will learn how to use the RSocket-CLI to communicate with a Spring Boot service built using the [RSocket][rsocket] protocol. You will run a Spring Boot RSocket server locally and connect a client to it in order to exchange a test message.
 
@@ -12,11 +12,11 @@ Spring Boot helps us build RSocket microservices services quckly. Spring Boot's 
 
 ## How To Do It
 
-In this recipe you will see that the amount of code required to build an RSocket server with Spring Boot is very small. To keep things simple, the code has been provided for you but you should examine the code when directed so that you become familiar with it. 
+In this recipe you will see that the amount of code required to build an RSocket server with Spring Boot is very small. To keep things simple, the code has been provided for you but you should examine the code when directed so that you become familiar with it.
 
 Before you start, make sure you have all the [prerequisites][pre] installed. It's also helpful if you've followed the [first recipe][recipe], and in particular, that you have prepared the `rsocket-cli` for use in the terminal window that you want to use.
 
-### Step 1: Examine the Spring Boot RSocket Server Code
+### Step 1: Examine the RSocket Server Code
 
 There is very little code necessary to integrate RSocket with Spring Boot, but here are the highlights:
 
@@ -24,7 +24,7 @@ There is very little code necessary to integrate RSocket with Spring Boot, but h
 
 In the Maven `pom.xml` file you can see the `<dependencies>` required by the Spring Boot RSocket server code. Spring Boot v2.2.2 is used in this example because (at the time of writing) this version has the most up to date RSocket features. The project also uses the `lombok` and `spring-boot-starter-rsocket` libraries. The first brings in a number of useful coding utilities to help with data classes and logging. The second integrates RSocket with Spring Boot by automatically configuring some Spring beans and putting them into Spring's application context.
 
-> **Notes:** 
+> **Note:** 
 > There's no need to include any of the traditional Spring "Web" components as they're not required by this RSocket based server.
 > The resulting executable JAR is pretty small - under 20Mb in size. 
 > Originally, the project was created using the [Spring initializr (start.spring.io)][initializr].
@@ -40,12 +40,12 @@ spring.main.lazy-initialization=true
 
 I also turned on Spring Boot's [lazy initialisation][lazy] feature for a faster startup time.
 
-> **Notes:**
-> Even on my ancient laptop (which features a built-in DVD drive and a working keyboard), the server starts up in under 2 seconds which is pretty quick!
+> **Note:**
+> Even on my ancient laptop (which features a built-in DVD drive and a working keyboard), the server starts up in just a few seconds which is pretty quick!
 
 #### 1.3 The Java Code
 
-Of particular note in the Java code is the `CommandRSocketController.java` class. Open it and take a look. The class is decorated as a Spring Boot `@Controller` which essentially means that it declares service endpoints. The class contains a method called `runCommand()` which is decorated with the `@MessageMapping("command")` annotation. This annotation declares that messages containing the RSocket **route** `command` should routed to this method. You will use this route as metadata when you later send a message from a client to this server.
+Of particular note in the Java code is the `CommandRSocketController.java` class. Open it and take a look. The class is decorated as a Spring Boot `@Controller` which essentially means that it declares service endpoints. The class contains a method called `runCommand()` which is decorated with the `@MessageMapping("command")` annotation. This annotation declares that messages containing the RSocket **route** `command` should be routed to this method. You will use this route as metadata when you later send a message from a client to this server.
 
 ```java
 @Controller
@@ -53,15 +53,14 @@ public class CommandRSocketController {
 
     @MessageMapping("command")
     CommandResponse runCommand(CommandRequest request) {
-        log.info("Received Command: {} at {}", request.getCommand(), Instant.now());
         return new CommandResponse(request.getCommand());
     }
 }
 ```
 
-Elsewhere in the project source code, there is also a couple of [Lombok][lombok] `@Data` classes (`CommandRequest.java` and `CommandController.java`) which are used to model the server's request and response messages. They are fairly trivial in nature as you'll see if you examine their code.
+Elsewhere in the project source code, there is also a couple of [Lombok][lombok] `@Data` classes (`CommandRequest.java` and `CommandResponse.java`) which are used to model the server's request and response messages. They are fairly trivial in nature as you'll see if you examine their code.
 
-> **Notes:**
+> **Note:**
 > You don't need to use Lombok if you don't want to, regular Java 'beans' will work just fine.
 
 ### Step 2: Start The Spring Boot RSocket Server
@@ -92,7 +91,7 @@ cd ..
 
 ### Step 3: Send A Command To The Server With The RSocket CLI
 
-Next, use the `rsocket-cli` from the [previous recipe][recipe] to send a command message to the RSocket server. The command message needs to have the `command` route declared in it's metadata, which you can do by adding the `--metadata` option and the ready-encoded metadata file `command-metatdata` like this:
+Next, use the `rsocket-cli` from the [previous recipe][recipe] to send a command message to the RSocket server. The command message needs to have the `command` route declared in its metadata, which you can do by adding the `--metadata` option and the ready-encoded metadata file `command-metatdata` like this:
 
 ```bash
 rsocket-cli --request --debug --input="{\"command\":\"doSomething\"}" --dataFormat="json" --metadata=@command-metadata --metadataFormat="message/x.rsocket.routing.v0"  tcp://localhost:7000
@@ -143,7 +142,7 @@ On the very last line, you will see the JSON formatted response from the server 
 {"command":"doSomething","received":"2019-12-06T15:57:53.523739Z"}
 ```
 
-> **Notes:**
+> **Note:**
 > If you have `bat`, `nano`, `vim`, or any decent text editor installed, you can examine the contents of the `command-metatdata` file. This file contains HEX encoded information in the format `<data-length><data>` as decribed in the [routing metadata payload specification][metadata] for RSocket.
 
 ## Tidy Up
@@ -162,7 +161,7 @@ The payload of the message is in JSON format, which Spring Boot automatically co
 
 ## Final Thoughts
 
-In this recipe you saw how easy it can be to create a simple RSocket server using Spring Boot. You examined the Java code and started the Spring Boot server locally before sending a message to the server over the RSocket protocol and observing the response. You also saw how it is possible to *route* your messages to sppecific endpoints using message metadata. Once more, you used the versatile `rsocket-cli` tool as your RSocket client.
+In this recipe you saw how easy it can be to create a simple RSocket server using Spring Boot. You examined the Java code and started the Spring Boot server locally before sending a message to the server over the RSocket protocol and observing the response. You also saw how it is possible to *route* your messages to specific endpoints using message metadata. Once more, you used the versatile `rsocket-cli` tool as your RSocket client.
 
 [initializr]: https://start.spring.io
 [initializr-link]: https://start.spring.io/#!type=maven-project&language=java&platformVersion=2.2.1.RELEASE&packaging=jar&jvmVersion=1.8&groupId=io.pivotal&artifactId=rsocket-server&name=rsocket-server&description=Demo%20project%20for%20Spring%20Boot&packageName=io.pivotal.rsocket-server&dependencies=lombok,rsocket

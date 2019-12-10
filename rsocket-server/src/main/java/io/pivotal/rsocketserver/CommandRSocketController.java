@@ -2,16 +2,14 @@ package io.pivotal.rsocketserver;
 
 import io.pivotal.rsocketserver.data.CommandRequest;
 import io.pivotal.rsocketserver.data.CommandResponse;
-import lombok.extern.slf4j.Slf4j;
+import io.pivotal.rsocketserver.data.EventResponse;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.stream.Stream;
 
-@Slf4j
 @Controller
 public class CommandRSocketController {
 
@@ -23,7 +21,6 @@ public class CommandRSocketController {
      */
     @MessageMapping("command")
     CommandResponse runCommand(CommandRequest request) {
-        log.info("Received a Command: {} at {}", request.getCommand(), Instant.now());
         return new CommandResponse(request.getCommand());
     }
 
@@ -34,12 +31,9 @@ public class CommandRSocketController {
      * @return
      */
     @MessageMapping("events")
-    Flux<CommandResponse> events(CommandRequest request) {
-        log.info("Received Command: {} at {}", request.getCommand(), Instant.now());
-        log.info("Starting a Stream of Strings");
+    Flux<EventResponse> streamEvents(CommandRequest request) {
         return Flux
-                .fromStream(Stream.generate(() -> new CommandResponse("subscription")))
-                .delayElements(Duration.ofSeconds(1))
-                .log();
+                .fromStream(Stream.generate(() -> new EventResponse("subscription")))
+                .delayElements(Duration.ofSeconds(1));
     }
 }

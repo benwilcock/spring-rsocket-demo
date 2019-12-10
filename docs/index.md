@@ -22,7 +22,12 @@ RSocket communication from a client to a server using just the RSocket CLI (no c
 
 Creating a Spring Boot RSocket server and communicating with it using the RSocket CLI.
 
+### [Streaming Data With Spring Boot RSocket Server][third]
+
+Creating a Spring Boot RSocket server and communicating with it using the RSocket CLI.
+
 [pre]: ./prerequisites.md
 [first]: ./first-try-rsocket.md
-[second]: ./rsocket-to-spring.md
+[second]: ./request-response.md
+[third]: ./request-stream.md
 [rsocket]: https://rsocket.io
