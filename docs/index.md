@@ -1,6 +1,6 @@
 # RSocket Recipes
 
-## Why RSocket?
+## Why RSocket
 
 What do you do if you discover a communication use-case that isn't a great fit for HTTP based messaging? For example, on mobile devices, HTTP's connectionless nature can pose a few problems. Connections drop all the time, notifications need to be sent (preferably without polling), and messages can flood into the server or the device unexpectedly.
 
@@ -8,19 +8,19 @@ What do you do if you discover a communication use-case that isn't a great fit f
 
 In these recipes I'll show you how to get started with RSocket so that you can try it out for yourself.
 
-## RSocket Recipes
+## RSocket Recipe List
 
 ### [Prerequisites][pre]
 
-Things you'll need before you can get started.
+Things you'll need before you get started.
 
 ### [No Code Quickstart][first]
 
-RSocket communication from client to server using just the RSocket CLI.
+RSocket communication from a client to a server using just the RSocket CLI (no code).
 
-### [RSocket Spring Boot Server][second]
+### [Request Response With Spring Boot RSocket Server][second]
 
-Request/Response communication between the RSocket CLI and Spring Boot
+Creating a Spring Boot RSocket server and communicating with it using the RSocket CLI.
 
 [pre]: ./prerequisites.md
 [first]: ./first-try-rsocket.md
