@@ -59,7 +59,7 @@ public class CommandRSocketController {
 }
 ```
 
-Elsewhere in the project source code, there is also a couple of [Lombok][lombok] `@Data` classes (`CommandRequest.java` and `CommandController.class`) which are used to model the server's request and response messages. They are fairly trivial in nature as you will see if you examine the code.
+Elsewhere in the project source code, there is also a couple of [Lombok][lombok] `@Data` classes (`CommandRequest.java` and `CommandController.java`) which are used to model the server's request and response messages. They are fairly trivial in nature as you'll see if you examine their code.
 
 > **Notes:**
 > You don't need to use Lombok if you don't want to, regular Java 'beans' will work just fine.
@@ -88,7 +88,7 @@ cd ..
 ```
 
 > **Note:**
-> You can view all your background processes at any time by typing `jobs` at the prompt. You can bring any background process to the foreground using `fg %<job number>`.
+> You can view all your background processes at any time by typing `jobs` at the prompt. You can bring any background process to the foreground using `fg %n` where `n` is the job number.
 
 ### Step 3: Send A Command To The Server With The RSocket CLI
 
@@ -171,3 +171,4 @@ In this recipe you saw how easy it can be to create a simple RSocket server usin
 [pre]: ./prerequisites.md
 [rsocket]: https://rsocket.io
 [metadata]: https://github.com/rsocket/rsocket/blob/master/Extensions/Routing.md
+[lombok]: https://projectlombok.org/
