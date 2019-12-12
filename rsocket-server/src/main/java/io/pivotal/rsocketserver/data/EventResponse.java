@@ -12,9 +12,13 @@ import lombok.NoArgsConstructor;
 public class EventResponse {
 
     private String event = "none";
-    private Instant sent = Instant.now();
+    private long sent = Instant.now().getEpochSecond();
 
     public EventResponse(String event) {
+        this.event = event;
+    }
+
+    public EventResponse(String event, int number) {
         this.event = event;
     }
 }

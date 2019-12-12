@@ -8,6 +8,8 @@ What do you do if you discover a communication use-case that isn't a great fit f
 
 In these recipes I'll show you how to get started with RSocket so that you can try it out for yourself.
 
+> Want to know more about RSocket? Read this excellent [blog post on RSocket][rafal1] by my good friend Rafal Kowalski of GrapeUp.
+
 ## RSocket Recipe List
 
 ### [Prerequisites][pre]
@@ -26,8 +28,18 @@ Creating a Spring Boot RSocket server and communicating with it using the RSocke
 
 Creating a Spring Boot RSocket server and communicating with it using the RSocket CLI.
 
+### [Resiliant Streaming With RSocket][fourth]
+
+## About The Author
+
+Ben Wilcock works in Spring Marketing at Pivotal. [Follow Ben on twitter][twitter].
+
 [pre]: ./prerequisites.md
 [first]: ./first-try-rsocket.md
 [second]: ./request-response.md
 [third]: ./request-stream.md
+[fourth]: ./stream-resumption.md
 [rsocket]: https://rsocket.io
+[factory]: https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/rsocket/server/ServerRSocketFactoryProcessor.java
+[rafal1]: https://grapeup.com/blog/read/reactive-service-to-service-communication-with-rsocket-introduction-63
+[twitter]: https://twitter.com/benbravo73

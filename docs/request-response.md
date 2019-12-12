@@ -52,11 +52,13 @@ Of particular note in the Java code is the `CommandRSocketController.java` class
 public class CommandRSocketController {
 
     @MessageMapping("command")
-    CommandResponse runCommand(CommandRequest request) {
-        return new CommandResponse(request.getCommand());
+    Mono<CommandResponse> runCommand(CommandRequest request) {
+        return Mono.just(new CommandResponse(request.getCommand()));
     }
 }
 ```
+
+Within the code, a new single response message (called a `Mono`) is created. The Mono contains a new `CommandResponse` object. The `Mono` class comes from Spring Boot's *reactive* codebase ([Reactor][reactor]).
 
 Elsewhere in the project source code, there is also a couple of [Lombok][lombok] `@Data` classes (`CommandRequest.java` and `CommandResponse.java`) which are used to model the server's request and response messages. They are fairly trivial in nature as you'll see if you examine their code.
 
@@ -72,7 +74,7 @@ cd rsocket-server
 ./mvnw clean package spring-boot:run -DskipTests=true
 ```
 
-Once the server ha started, send the server process to the background by pressing `Ctrl-Z` to suspend it and then type `bg` to allow it to continue in the background.
+Once the server has started, send the server process to the background by pressing `Ctrl-Z` to suspend it and then type `bg` to allow it to continue in the background.
 
 ```bash
 [1]  + 18976 suspended  ./mvnw clean package spring-boot:run -DskipTests=true
@@ -87,7 +89,7 @@ cd ..
 ```
 
 > **Note:**
-> You can view all your background processes at any time by typing `jobs` at the prompt. You can bring any background process to the foreground using `fg %n` where `n` is the job number.
+> You can view all your background processes at any time by typing `jobs` at the prompt. You can bring any background process to the foreground using `fg %n` where `n` is the job number. If you don't want to process switch in the terminal, just use the "Run" command in your Java IDE.
 
 ### Step 3: Send A Command To The Server With The RSocket CLI
 
@@ -171,3 +173,4 @@ In this recipe you saw how easy it can be to create a simple RSocket server usin
 [rsocket]: https://rsocket.io
 [metadata]: https://github.com/rsocket/rsocket/blob/master/Extensions/Routing.md
 [lombok]: https://projectlombok.org/
+[reactor]: https://projectreactor.io/

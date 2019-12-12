@@ -45,7 +45,7 @@ public class CommandRSocketController {
 }
 ```
 
-Within the code a new and endless stream of messages (called a `Flux`) is being created. The Flux has a new `EventResponse` object added to it every 1 second. The `Flux` object comes from Spring Boot's *reactive* codebase.
+Within the code, a new and endless stream of messages (called a `Flux`) is created. The Flux has a new `EventResponse` object added to it every second. The `Flux` object comes from Spring Boot's *reactive* codebase ([Reactor][reactor]).
 
 As before, there are also a couple of [Lombok][lombok] `@Data` classes (`CommandRequest.java` and `EventResponse.java`) which are used to model the server's command request and event response messages. These classes are fairly basic as you'll see if you examine their code.
 
@@ -62,7 +62,7 @@ Once the server ha started, send the server process to the background by pressin
 
 ```bash
 [1]  + 18976 suspended  ./mvnw clean package spring-boot:run -DskipTests=true
-$> bg
+$ bg
 [1]  + 22006 continued  ./mvnw clean package spring-boot:run -DskipTests=true
 ```
 
@@ -153,3 +153,4 @@ In this recipe you saw how easy it can be to create a simple streaming data serv
 [metadata]: https://github.com/rsocket/rsocket/blob/master/Extensions/Routing.md
 [lombok]: https://projectlombok.org/
 [recipe]: ./request-response.md
+[reactor]: https://projectreactor.io/

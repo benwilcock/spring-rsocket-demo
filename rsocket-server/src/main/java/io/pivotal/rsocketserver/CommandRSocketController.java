@@ -6,6 +6,7 @@ import io.pivotal.rsocketserver.data.EventResponse;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -20,8 +21,8 @@ public class CommandRSocketController {
      * @return
      */
     @MessageMapping("command")
-    CommandResponse runCommand(CommandRequest request) {
-        return new CommandResponse(request.getCommand());
+    Mono<CommandResponse> runCommand(CommandRequest request) {
+        return Mono.just(new CommandResponse(request.getCommand()));
     }
 
     /**
