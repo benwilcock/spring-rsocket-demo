@@ -8,7 +8,7 @@ What do you do if you discover a communication use-case that isn't a great fit f
 
 In these recipes I'll show you how to get started with RSocket so that you can try it out for yourself.
 
-> Want to know more about RSocket? Read this excellent [blog post on RSocket][rafal1] by my good friend Rafal Kowalski of GrapeUp.
+> Want to know more about RSocket? Read this excellent [blog post on RSocket][rafal1] by Rafal Kowalski.
 
 ## RSocket Recipe List
 
