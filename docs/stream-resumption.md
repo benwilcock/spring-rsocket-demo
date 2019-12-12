@@ -18,7 +18,7 @@ Resumption is not active by default. To add resumption to your Spring Boot RSock
 
 For Spring Boot RSocket servers, we need to configure the RSocket server to start with *resume mode* on.
 
-To do this we add a Spring `@Component` to our project called `RSocketServerSetup` which must implement the `[ServerRSocketFactoryProcessor][processor]` interface. This interface contains a single `process()` method. At runtime, Spring will call this method passing a `[RSocketFactory.ServerRSocketFactory][factory]` which you can use to customise the RSocket server. In this case, you will call the `resume()` method on the factory to activate the resumption feature using some predetermined defaults. The code is as follows.
+To do this you add a Spring `@Component` to your project called `RSocketServerSetup` which implements the `[ServerRSocketFactoryProcessor][processor]` interface. This interface contains a single `process()` method. Spring will call this method at runtime passing a `[RSocketFactory.ServerRSocketFactory][factory]`. You can use this factory to customise the RSocket server. In this case, you will call the `resume()` method on the factory to activate the resumption feature (using its defaults). The code you need to add is as follows.
 
 ```java
 @Profile("resumption")
