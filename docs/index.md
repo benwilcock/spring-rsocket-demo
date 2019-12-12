@@ -30,6 +30,8 @@ Creating a Spring Boot RSocket server and communicating with it using the RSocke
 
 ### [Resiliant Streaming With RSocket][fourth]
 
+Creating a robust RSocket connection between client and server so that interrupted streams can be recovered and resumed.
+
 ## About The Author
 
 Ben Wilcock works in Spring Marketing at Pivotal. [Follow Ben on twitter][twitter].
