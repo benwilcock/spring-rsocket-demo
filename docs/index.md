@@ -1,36 +1,57 @@
 # RSocket Recipes
 
+A series of short, bite sized exercises that you can try to get started with [RSocket][rsocket] on Spring Boot.
+
 ## Why RSocket
 
-What do you do if you discover a communication use-case that isn't a great fit for HTTP based messaging? For example, on mobile devices, HTTP's connectionless nature can pose a few problems. Connections drop all the time, notifications need to be sent (preferably without polling), and messages can flood into the server or the device unexpectedly.
+What do you do if you discover a communication use-case that isn't a great fit for connectionless HTTP request-response messaging?
 
-[RSocket][rsocket] is purpose built to help solve these problems. With RSocket you get flexible transport of messages over TCP or WebSockets, back-pressure, resumption, and routing for flow control, and multiple message modes including fire and forget, request response, and streaming. 
 
-In these recipes I'll show you how to get started with RSocket so that you can try it out for yourself.
+In the diverse world of communications, HTTP can lead to a few challenges. Network connections can drop, messages can flood in, load might need to be balanced, messages may need to be re-routed, and one-way communication or streaming may be required. 
 
-> Want to know more about RSocket? Read this excellent [blog post on RSocket][rafal1] by Rafal Kowalski.
+The HTTP protocol isn't really designed for many of these use-cases. You can overcome these challenges with HTTP, but this means adding additional code and infrastructure such as circuit breakers, retry mechanisms, load balancers, etc.
+
+[RSocket][rsocket] is purpose built to help solve some of these communication challenges. With RSocket you get flexible transport of messages over TCP or WebSockets, back-pressure, resumption, routing, and flow control, plus multiple message modes including fire and forget, request response, and streaming. RSocket is also fully reactive, so it's designed from the start for next-gen Java applications.
+
+In this series of recipes, you'll learn how to get started with RSocket so that you can get more familiar with how it works, and experience its power for yourself.
 
 ## RSocket Recipe List
 
-### [Prerequisites][pre]
+### [Prerequisites][pre] - 10 mins
 
-Things you'll need before you get started.
+Things you'll need to do before you get started on the other recipes.
 
-### [No Code Quickstart][first]
+### [No Code Quickstart][first] - 15 mins
 
-RSocket communication from a client to a server using just the RSocket CLI (no code).
+In this no-code quickstart, you'll try out RSocket communication between a client and a server using just the RSocket CLI tool.
 
-### [Request Response With Spring Boot RSocket Server][second]
+### [Request Response With Spring Boot RSocket Server][second] - 15 mins
 
-Creating a Spring Boot RSocket server and communicating with it using the RSocket CLI.
+In this recipe, you'll begin creating a Spring Boot RSocket server and communicate with it using the RSocket CLI.
 
-### [Streaming Data With Spring Boot RSocket Server][third]
+### [Streaming Data With Spring Boot RSocket Server][third] - 15 mins
 
-Creating a Spring Boot RSocket server and communicating with it using the RSocket CLI.
+Here, you'll learn how to add streaming to your Spring Boot RSocket server, and stream some data using the RSocket CLI.
 
-### [Resiliant Streaming With RSocket][fourth]
+### [Resiliant Streaming With RSocket][fourth]- 15 mins
 
-Creating a robust RSocket connection between client and server so that interrupted streams can be recovered and resumed.
+In this recipe, you'll discover how to cope with spotty networks by adding a 'pause and resume' feature to your Spring Boot RSocket server.
+
+### RSocket Clients With Spring Boot
+
+Some stuff will go here.
+
+### Backpressure & Flow Control (Throttling)
+
+Some stuff will also go here.
+
+### Load Balancing (Clients)
+
+And here.
+
+## RSocket Blogs
+
+Check out this excellent [blog post series on RSocket][rafal1] by Rafal Kowalski.
 
 ## About The Author
 

@@ -2,6 +2,10 @@
 
 In this recipe you will learn how to start a very simple data stream using Spring Boot, the RSocket protocol, and the command line.
 
+**Time: Approx. 15 mins.**
+
+Before you start, check you have all the [prerequisite][pre] software installed and you have prepared your terminal to use the `rsocket-cli`.
+
 ## Problem
 
 You have a long running stream of data which you want to send to a client. You want the client to initiate the streaming, and the server to respond with the stream.

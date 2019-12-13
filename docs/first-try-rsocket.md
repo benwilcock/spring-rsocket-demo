@@ -1,5 +1,9 @@
 # RSocket No Code Quickstart
 
+**Time: Approx. 15 mins.**
+
+Before you start, check you have all the [prerequisite][pre] software installed and you have prepared your terminal to use the `rsocket-cli`.
+
 ## Problem
 
 Getting to know new tech can take a while. Sometimes you have to start new IDE projects and write new code before you see something that actually works. 
@@ -12,32 +16,7 @@ The solution is to use code that's already written! With pre-prepared code you c
 
 Your journey into [RSocket][rsocket] can begin without you writing a single line of code. With the `rsocket-cli` tool we can setup a simple server, attach a client to it, and send some data between the them in a few minutes.
 
-> Before you start, check you have all the [prerequisites][pre] installed.
-
-#### Step 1: Checkout The Code And Build The RSocket CLI
-
-Because the RSocket-CLI tool is for developers, it comes as source code rather than as a ready compiled executable program. This means you have to build the `rsocket-cli` tool on your computer before you can use it. Fortunately that's quick and relatively simple process.
-
-First, using [Git][pre], clone the code repository for this tutorial into a folder on your computer:
-
-```bash
-git clone https://github.com/benwilcock/spring-rsocket-demo.git
-```
-
-Next, build the `rsocket-cli` tool with the following command:
-
-```bash
-source get-rsocket-cli.sh
-```
-
-> This script might take some time. The Gradle Wrapper is required to build the `rsocket-cli` project, and the project itself depends on a number of other libraries. These downloads may take a while. It depends. 
-
-Once the `rsocket-cli` is built, it should output the `--help` text to the terminal window. You are now ready to practice with [RSocket][rsocket].
-
-> **Note:** 
-> I'm using the `source` command. This is because the script creates a temporary alias called `rsocket-cli` which you will use in later steps and recipes.
-
-#### Step 2: Start An RSocket Server
+#### Step 1: Start An RSocket Server
 
 You can create a basic RSocket server using the `rsocket-cli` and a simple multiline text file (such as Ubuntu's built in dictionary of words in `/usr/share/dict/words`). This server will sit an wait for requests to come in, and then respond to them using the data from the dictionary. 
 
@@ -56,7 +35,7 @@ $> bg
 > **Note:**
 > Pressing `Ctrl-Z` suspends the currently running process in the terminal. Typing `bg` continues the suspended process in the background. Typing `jobs` shows you a list of background processes. More information on these commands can be found in the [prerequisites][pre].
 
-#### Step 3: Attach An RSocket Client
+#### Step 2: Attach An RSocket Client
 
 Next, you should create an RSocket client and ask for a stream of words from the RSocket Server. These words will be streamed over TCP using the [RSocket][rsocket] protocol.
 
