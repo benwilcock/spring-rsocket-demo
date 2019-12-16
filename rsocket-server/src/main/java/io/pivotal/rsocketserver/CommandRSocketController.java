@@ -26,7 +26,7 @@ public class CommandRSocketController {
     }
 
     /**
-     * This @MessageMapping is intended to be used "sunscribe --> stream" style.
+     * This @MessageMapping is intended to be used "subscribe --> stream" style.
      * When a new request command is received, a new stream of events is started and returned to the client.
      * @param request
      * @return
