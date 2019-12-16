@@ -9,12 +9,12 @@ import org.springframework.shell.standard.ShellOption;
 
 @Slf4j
 @ShellComponent
-public class RSocketMessageSender {
+public class RSocketCommandSender {
 
     private final RSocketClient rSocketClient;
 
     @Autowired
-    public RSocketMessageSender(RSocketClient rSocketClient) {
+    public RSocketCommandSender(RSocketClient rSocketClient) {
         this.rSocketClient = rSocketClient;
     }
 
