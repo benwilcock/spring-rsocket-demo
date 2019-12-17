@@ -22,19 +22,19 @@ In this series of recipes, you'll learn how to get started with RSocket so that 
 
 Things you'll need to do before you get started on the other recipes.
 
-### [No Code RSocket Quickstart][one] - 15 mins
+### [No Code Quickstart][one] - 15 mins
 
 In this no-code quickstart, you'll try out RSocket communication between a client and a server using just the RSocket CLI tool.
 
-### [Request Response With Spring Boot RSocket Server][two] - 15 mins
+### [Request Response With Spring Boot][two] - 15 mins
 
 In this recipe, you'll begin creating a Spring Boot RSocket server and communicate with it using the RSocket CLI.
 
-### [Streaming Data With Spring Boot RSocket Server][three] - 15 mins
+### [Streaming Data With Spring Boot][three] - 15 mins
 
 Here, you'll learn how to add streaming to your Spring Boot RSocket server, and stream some data using the RSocket CLI.
 
-### [Resilient Streaming With RSocket][four] - 15 mins
+### [Resilient Streaming][four] - 15 mins
 
 In this recipe, you'll discover how to cope with spotty networks by adding a 'pause and resume' feature to your Spring Boot RSocket server.
 
@@ -44,11 +44,19 @@ In this recipe you''l create your own terminal client that will exchange request
 
 ### Back-pressure & Flow Control (Throttling)
 
-Some stuff will also go here.
+TODO.
 
 ### Load Balancing (Clients)
 
-And here.
+TODO.
+
+### Retry
+
+TODO.
+
+### RSocket With Spring Cloud Gateway
+
+TODO.
 
 ## RSocket Blogs
 
