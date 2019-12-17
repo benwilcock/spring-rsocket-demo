@@ -20,7 +20,7 @@ public class RSocketCommandSender {
 
     @ShellMethod("Send a command message to the RSocket server. Response will be printed.")
     public void sendCommand(@ShellOption(defaultValue = "doSomething") String command) {
-        rSocketClient.sendCommand(command).subscribe(cr -> log.info("\nServer command response is: {}", cr));
+        rSocketClient.sendCommand(command).subscribe(cr -> log.info("\nCommand response is: {}", cr));
         return;
     }
 }

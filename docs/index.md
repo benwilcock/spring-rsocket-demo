@@ -34,11 +34,11 @@ In this recipe, you'll begin creating a Spring Boot RSocket server and communica
 
 Here, you'll learn how to add streaming to your Spring Boot RSocket server, and stream some data using the RSocket CLI.
 
-### [Resilient Streaming With RSocket][four]- 15 mins
+### [Resilient Streaming With RSocket][four] - 15 mins
 
 In this recipe, you'll discover how to cope with spotty networks by adding a 'pause and resume' feature to your Spring Boot RSocket server.
 
-### [RSocket Clients With Spring Boot][five]
+### [RSocket Clients With Spring Boot][five] - 20 mins
 
 In this recipe you''l create your own terminal client that will exchange request-response messages with your Spring Boot RSocket server.
 
