@@ -12,6 +12,9 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -33,11 +36,11 @@ public class RSocketCommandSender {
     }
 
     @ShellMethod("Channel a command message to the RSocket server. Many responses will be printed.")
-    public void channelCommand(@ShellOption(defaultValue = "doOverAndOver") String command){
-        if (eventSubscription != null) {
-            eventSubscription.dispose();
-        }
-        eventSubscription = rSocketClient.channelCommand(command).subscribe(er -> log.info("\nEvent Response is {}", er));
+    public void channelCommands(@ShellOption(defaultValue = "One") String command1,
+                                @ShellOption(defaultValue = "Two") String command2,
+                                @ShellOption(defaultValue = "Three") String command3){
+        Flux<String> commands = Flux.fromIterable(Arrays.asList(command1, command2, command3)).delayElements(Duration.ofSeconds(2));
+        eventSubscription = rSocketClient.channelCommand(commands).subscribe(er -> log.info("\nEvent Response is {}", er));
         return;
     }
 }

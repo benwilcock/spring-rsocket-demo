@@ -26,10 +26,10 @@ public class RSocketClient {
                 .retrieveMono(CommandResponse.class);
     }
 
-    public Flux<EventResponse> channelCommand(String command) {
+    public Flux<EventResponse> channelCommand(Flux<String> commands) {
         return this.rsocketRequester
                 .route("channel")
-                .data(Flux.interval(Duration.ofSeconds(10)).map(cr -> new CommandRequest(command)), EventResponse.class)
+                .data(Flux.from(commands).map(CommandRequest::new), CommandRequest.class)
                 .retrieveFlux(EventResponse.class);
     }
 }
