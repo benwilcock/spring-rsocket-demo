@@ -37,4 +37,11 @@ public class CommandRSocketController {
                 .fromStream(Stream.generate(() -> new EventResponse("subscription")))
                 .delayElements(Duration.ofSeconds(1));
     }
+
+    @MessageMapping("channel")
+    Flux<EventResponse> channel(Flux<CommandRequest> requests) {
+        return Flux.from(requests)
+                .log()
+                .map(message -> new EventResponse(message.getCommand()));
+    }
 }

@@ -14,7 +14,7 @@ These recipes use the Linux terminal a lot. It helps if you have some basic expe
 
 Depending which version of Mac OS you have, you may have either BASH or ZSH installed by default.
 
-If you're on Windows and don't yet have a Linux terminal, you can install [Git Bash][gitbash], or the [Windows Subsystem for Linux][wsl].
+If you're on Windows and don't yet have a Linux terminal, you can install the [Windows Subsystem for Linux][wsl] (choose Ubuntu as your distro), or try [Git Bash][gitbash].
 
 ## Git
 

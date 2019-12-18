@@ -24,7 +24,7 @@ Things you'll need to do before you get started on the other recipes.
 
 ### [No Code Quickstart][one] - 15 mins
 
-In this no-code quickstart, you'll try out RSocket communication between a client and a server using just the RSocket CLI tool.
+In this recipe, you'll try out RSocket communication between a client and a server using just the RSocket CLI tool.
 
 ### [Request Response With Spring Boot][two] - 15 mins
 
@@ -40,7 +40,7 @@ In this recipe, you'll discover how to cope with spotty networks by adding a 'pa
 
 ### [RSocket Clients With Spring Boot][five] - 20 mins
 
-In this recipe you''l create your own terminal client that will exchange request-response messages with your Spring Boot RSocket server.
+Moving on from the server-side, you'll now create your own shell terminal client that will exchange request-response messages with your Spring Boot RSocket server.
 
 ### Back-pressure & Flow Control (Throttling)
 

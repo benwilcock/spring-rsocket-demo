@@ -1,14 +1,14 @@
 # RSocket Shell Client
 
-Spring Boot also brings simplicity to the task of writing RSocket clients. In this recipe, you'll learn how to write your own RSocket client which you can use to send commands to the RSocket server discussed in [previous recipes][request-response].
+Spring Boot also brings simplicity to the task of writing RSocket clients. In this recipe, you'll learn how to write your own RSocket client using Spring Shell. You'll use this client to send commands to the RSocket server you built earlier.
 
 **Time: Approx. 20 mins.**
 
-Before you start, check you have all the [required software][pre] installed on your computer. You also need to be able to build and run the `rsocket-server` code from the code repository. Follow the recipe: [Request Response With Spring Boot RSocket Server][request-response] if you need to get up to speed on how to do this.
+Before you start, check you have all the [required software][pre] installed on your computer. You also need to be able to build and run the `rsocket-server` code. Follow the recipe: [Request Response With Spring Boot RSocket Server][request-response] if you need to get up to speed on how to do this.
 
 ## Problem
 
-The RSocket Spring Boot server from [earlier recipes][request-response] is ready to process commands, but so far the only tool we have to send commands to the server is the `rsocket-cli` tool. This tool only accepts our commands via the `--input` option which is a bit inflexible.
+Your RSocket Spring Boot server from [earlier recipes][request-response] is ready to accept commands, but so far the only tool we have to send commands to the server is the `rsocket-cli` tool. This tool only accepts our commands via the `--input` option which is a bit inflexible.
 
 ## Solution
 
