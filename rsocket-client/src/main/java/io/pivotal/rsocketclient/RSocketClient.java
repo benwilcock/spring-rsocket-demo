@@ -25,10 +25,10 @@ public class RSocketClient {
                 .retrieveMono(EventResponse.class);
     }
 
-    public Flux<EventResponse> channelCommand(Flux<String> commands) {
+    public Flux<EventResponse> channelCommand(String command) {
         return this.rsocketRequester
                 .route("channel")
-                .data(Flux.from(commands).map(CommandRequest::new), CommandRequest.class)
+                .data(Flux.range(0,10).map(cr -> new CommandRequest(command)), CommandRequest.class)
                 .retrieveFlux(EventResponse.class);
     }
 

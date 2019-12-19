@@ -40,18 +40,16 @@ public class RSocketCommandSender {
     }
 
     @ShellMethod("Send three requests to the RSocket server. Three responses (stream) will be printed.")
-    public void channel(@ShellOption(defaultValue = "requestOne") String command1,
-                        @ShellOption(defaultValue = "requestTwo") String command2,
-                        @ShellOption(defaultValue = "requestThree") String command3){
-        log.info("\nSending three requests. Waiting for three responses...");
-        Flux<String> commands = Flux.fromIterable(Arrays.asList(command1, command2, command3)).delayElements(Duration.ofSeconds(2));
-        rSocketClient.channelCommand(commands).subscribe(er -> log.info("\nEvent Response is {}", er));
+    public void channel(@ShellOption(defaultValue = "channel") String command1){
+        log.info("\nSending ten requests. Waiting for ten responses...");
+        rSocketClient.channelCommand(command1).subscribe(er -> log.info("\nEvent Response is {}", er));
         return;
     }
 
+
     @ShellMethod("Send one request to the RSocket server. Many responses (stream) will be printed.")
     public void stream(@ShellOption(defaultValue = "stream") String command) {
-        log.info("\nSending one request. Waiting for many responses...");
+        log.info("\nSending one request. Waiting for unlimited responses...");
         rSocketClient.streamCommand(command).subscribe(er -> log.info("\nEvent response is: {}", er));
         return;
     }

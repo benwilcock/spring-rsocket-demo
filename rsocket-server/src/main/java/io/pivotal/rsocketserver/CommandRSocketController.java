@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -43,8 +44,9 @@ public class CommandRSocketController {
 
     @MessageMapping("channel")
     Flux<EventResponse> channel(Flux<CommandRequest> requests) {
-        log.info("Received channel request (Flux).");
-        return Flux.from(requests)
+        log.info("Received channel request (Flux) at {}", Instant.now().getEpochSecond());
+        return requests
+                .delayElements(Duration.ofSeconds(1))
                 .map(commandRequest -> new EventResponse(commandRequest.getCommand()));
     }
 
