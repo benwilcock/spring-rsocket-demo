@@ -11,14 +11,10 @@ import java.time.Instant;
 @AllArgsConstructor
 public class EventResponse {
 
-    private String event = "none";
-    private long sent = Instant.now().getEpochSecond();
+    private String event = "";
+    private long created = Instant.now().getEpochSecond();
 
     public EventResponse(String event) {
-        this.event = event;
-    }
-
-    public EventResponse(String event, int number) {
-        this.event = event;
+        this.event = "Response for '" + event + "'";
     }
 }

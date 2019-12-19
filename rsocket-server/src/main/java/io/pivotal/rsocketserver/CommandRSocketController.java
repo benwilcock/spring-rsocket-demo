@@ -1,8 +1,8 @@
 package io.pivotal.rsocketserver;
 
 import io.pivotal.rsocketserver.data.CommandRequest;
-import io.pivotal.rsocketserver.data.CommandResponse;
 import io.pivotal.rsocketserver.data.EventResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.stream.Stream;
 
+@Slf4j
 @Controller
 public class CommandRSocketController {
 
@@ -21,8 +22,9 @@ public class CommandRSocketController {
      * @return
      */
     @MessageMapping("command")
-    Mono<CommandResponse> runCommand(CommandRequest request) {
-        return Mono.just(new CommandResponse(request.getCommand()));
+    Mono<EventResponse> requestResponse(CommandRequest request) {
+        log.info("Received request-response request: {}", request);
+        return Mono.just(new EventResponse(request.getCommand()));
     }
 
     /**
@@ -32,16 +34,23 @@ public class CommandRSocketController {
      * @return
      */
     @MessageMapping("events")
-    Flux<EventResponse> streamEvents(CommandRequest request) {
+    Flux<EventResponse> stream(CommandRequest request) {
+        log.info("Received stream request: {}", request);
         return Flux
-                .fromStream(Stream.generate(() -> new EventResponse("subscription")))
+                .fromStream(Stream.generate(() -> new EventResponse(request.getCommand())))
                 .delayElements(Duration.ofSeconds(1));
     }
 
     @MessageMapping("channel")
     Flux<EventResponse> channel(Flux<CommandRequest> requests) {
+        log.info("Received channel request (Flux).");
         return Flux.from(requests)
-                .log()
-                .map(message -> new EventResponse(message.getCommand()));
+                .map(commandRequest -> new EventResponse(commandRequest.getCommand()));
+    }
+
+    @MessageMapping("notify")
+    public Mono<Void> fireAndForget(CommandRequest request) {
+        log.info("Received fire-and-forget request: {}", request);
+        return Mono.empty();
     }
 }
