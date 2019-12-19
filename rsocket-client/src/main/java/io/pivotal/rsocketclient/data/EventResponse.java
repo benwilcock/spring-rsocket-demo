@@ -16,5 +16,5 @@ public class EventResponse {
 
     public EventResponse(String event) {
         this.event = "Response for '" + event + "'";
-    }
+    }   
 }

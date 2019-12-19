@@ -60,7 +60,13 @@ TODO.
 
 ## RSocket Blogs
 
-Check out this excellent [blog post series on RSocket][rafal1] by Rafal Kowalski.
+Check out this excellent .
+
+## RSocket Blogs, Documentation & Code Samples
+
+* [RSocket blog post series by Rafal Kowalski](https://grapeup.com/blog/read/reactive-service-to-service-communication-with-rsocket-introduction-63)
+* [Spring Framework - RSocket Documentation](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#rsocket).
+* [Spring Flights RSocket Sample](https://github.com/bclozel/spring-flights)
 
 ## About The Author
 
@@ -77,6 +83,5 @@ Ben Wilcock works in Spring Marketing at Pivotal. [Follow Ben on twitter][twitte
 
 [factory]: https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/rsocket/server/ServerRSocketFactoryProcessor.java
 
-[rafal1]: https://grapeup.com/blog/read/reactive-service-to-service-communication-with-rsocket-introduction-63
 
 [twitter]: https://twitter.com/benbravo73
