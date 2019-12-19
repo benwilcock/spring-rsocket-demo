@@ -26,29 +26,9 @@ public class RSocketCommandSender {
 
     @ShellMethod("Send one request to the RSocket server. No response will be returned.")
     public void fireAndForget(@ShellOption(defaultValue = "fire-and-forget") String command) {
-        log.info("\nSending fire and forget request...");
-        rSocketClient.notifyCommand(command).subscribe(new Subscriber<Void>() {
-            @Override
-            public void onSubscribe(Subscription s) {
-                log.info("\nDone");
-                return;
-            }
-
-            @Override
-            public void onNext(Void aVoid) {
-                return;
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                return;
-            }
-
-            @Override
-            public void onComplete() {
-                return;
-            }
-        });
+        log.info("\nSending fire and forget request. Expect no response (check server)...");
+        rSocketClient.notifyCommand(command).subscribe().dispose();
+        log.info("\nDone.");
         return;
     }
 

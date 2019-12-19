@@ -3,7 +3,6 @@ package io.pivotal.rsocketclient;
 
 import io.pivotal.rsocketclient.data.CommandRequest;
 import io.pivotal.rsocketclient.data.EventResponse;
-import org.reactivestreams.Publisher;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -33,12 +32,12 @@ public class RSocketClient {
                 .retrieveFlux(EventResponse.class);
     }
 
-    public Publisher<Void> notifyCommand(String command) {
-        return rsocketRequester
-                .route("notify")
-                .data(new CommandRequest(command))
-                .send();
-    }
+        public Mono<Void> notifyCommand(String command) {
+            return rsocketRequester
+                    .route("notify")
+                    .data(new CommandRequest(command))
+                    .send();
+        }
 
     public Flux<EventResponse> streamCommand(String command) {
         return rsocketRequester
