@@ -1,28 +1,21 @@
 package io.pivotal.rsocketclient;
 
 
-import io.pivotal.rsocketclient.data.CommandRequest;
-import io.pivotal.rsocketclient.data.EventResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @ShellComponent
 public class RSocketCommandSender {
 
     private final RSocketClient rSocketClient;
-    private Disposable eventSubscription;
 
     @Autowired
     public RSocketCommandSender(RSocketClient rSocketClient) {
@@ -36,11 +29,12 @@ public class RSocketCommandSender {
     }
 
     @ShellMethod("Channel a command message to the RSocket server. Many responses will be printed.")
-    public void channelCommands(@ShellOption(defaultValue = "One") String command1,
-                                @ShellOption(defaultValue = "Two") String command2,
-                                @ShellOption(defaultValue = "Three") String command3){
+    public void channelCommands(@ShellOption(defaultValue = "CommandOne") String command1,
+                                @ShellOption(defaultValue = "CommandTwo") String command2,
+                                @ShellOption(defaultValue = "CommandThree") String command3){
+        log.info("\nSending 3 commands");
         Flux<String> commands = Flux.fromIterable(Arrays.asList(command1, command2, command3)).delayElements(Duration.ofSeconds(2));
-        eventSubscription = rSocketClient.channelCommand(commands).subscribe(er -> log.info("\nEvent Response is {}", er));
+        rSocketClient.channelCommand(commands).subscribe(er -> log.info("\nEvent Response is {}", er));
         return;
     }
 }
