@@ -37,17 +37,19 @@ public class CommandRSocketController {
     @MessageMapping("events")
     Flux<EventResponse> stream(CommandRequest request) {
         log.info("Received stream request: {}", request);
-        return Flux
-                .fromStream(Stream.generate(() -> new EventResponse(request.getCommand())))
-                .delayElements(Duration.ofSeconds(1));
+        return Flux.<EventResponse>empty()
+                .interval(Duration.ofSeconds(1))
+                .map(response -> new EventResponse(request.getCommand()))
+                .repeat();
     }
 
     @MessageMapping("channel")
     Flux<EventResponse> channel(Flux<CommandRequest> requests) {
         log.info("Received channel request (Flux) at {}", Instant.now().getEpochSecond());
         return requests
+                .repeat()
                 .delayElements(Duration.ofSeconds(1))
-                .map(commandRequest -> new EventResponse(commandRequest.getCommand()));
+                .map(request -> new EventResponse(request.getCommand()));
     }
 
     @MessageMapping("notify")
