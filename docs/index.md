@@ -6,7 +6,7 @@ All the code, including [this website][website] and documentation can be found [
 
 ## RSocket Recipes
 
-### [Introduction: Why RSocket][intro]
+### [Introduction: Why RSocket][intro] - 5 Mins
 
 Just a few words on why learning about RSocket is worth your time.
 
