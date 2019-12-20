@@ -176,11 +176,11 @@ When the client runs, Spring Shell should present you with a new prompt: `shell:
 
 You can use this prompt in a similar way to a regular terminal.
 
-Now, you can send a command message to the RSocket server by typing `send-command doSomething`. The server will then send a response, and this response will be printed out in the terminal.
+Now, you can send a command message to the RSocket server by typing `request-response do-something`. The server will then send a response, and this response will be printed out in the terminal.
 
 ```bash
-shell:> send-command doSomething
-Command response is: CommandResponse(command=doSomething, received=2019-12-16T16:01:17.285267Z)
+shell:> request-response do-something
+Event response is: EventResponse(event=Response for 'do-something', created=1576860076)
 ```
 
 > **Note:** You can see the full list of supported commands by typing `help` at the `shell:>` prompt. 

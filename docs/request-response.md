@@ -12,7 +12,7 @@ You would like to build your own RSocket server to handle traditional request-re
 
 ## Solution
 
-Spring Boot helps us build RSocket microservices services quckly. Spring Boot's RSocket 'starter' integrates RSocket with ease, reducing the coding effort.
+Spring Boot helps us build RSocket microservices services quckly. Spring Boot's RSocket 'starter' integrates and configures RSocket with ease, reducing the coding effort.
 
 ## How To Do It
 
