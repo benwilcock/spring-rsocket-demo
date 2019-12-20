@@ -8,6 +8,8 @@ All the code, including [this website][website] and documentation can be found [
 
 ### [Introduction: Why RSocket][intro]
 
+Just a few words on why learning about RSocket is worth your time.
+
 ### [Before You Start With RSocket][pre] - 10 mins
 
 Things you'll need to do before you get started on the other recipes.
