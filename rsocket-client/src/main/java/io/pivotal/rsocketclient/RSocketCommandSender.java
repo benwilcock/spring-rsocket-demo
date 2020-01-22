@@ -39,7 +39,7 @@ public class RSocketCommandSender {
         return;
     }
 
-    @ShellMethod("Send three requests to the RSocket server. Three responses (stream) will be printed.")
+    @ShellMethod("Send a stream of 10 requests to the RSocket server. The responses stream will be printed.")
     public void channel(@ShellOption(defaultValue = "channel") String command1){
         log.info("\nSending ten requests. Waiting for ten responses...");
         rSocketClient.channelCommand(command1).subscribe(er -> log.info("\nEvent Response is {}", er));

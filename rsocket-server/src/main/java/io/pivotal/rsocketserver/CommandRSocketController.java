@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -37,21 +37,37 @@ public class CommandRSocketController {
     @MessageMapping("events")
     Flux<EventResponse> stream(CommandRequest request) {
         log.info("Received stream request: {}", request);
-        return Flux.<EventResponse>empty()
+        return Flux
                 .interval(Duration.ofSeconds(1))
-                .map(response -> new EventResponse(request.getCommand()))
-                .repeat();
+                .map(response -> new EventResponse(request.getCommand()));
     }
 
+    /**
+     * This @MessageMapping is intended to be used "stream --> stream" style.
+     * When a new stream of CommandRequests is received, a new stream of EventResponses is started and returned to the client.
+     * @param requests
+     * @return
+     */
     @MessageMapping("channel")
     Flux<EventResponse> channel(Flux<CommandRequest> requests) {
-        log.info("Received channel request (Flux) at {}", Instant.now().getEpochSecond());
+        log.info("Received channel request (Flux) at {}", Instant.now());
         return requests
-                .repeat()
+                // Create an indexed flux which gives each element a number
+                .index()
+                // then every 1 second
                 .delayElements(Duration.ofSeconds(1))
-                .map(request -> new EventResponse(request.getCommand()));
+                // create a new Flux with one EventResponse for each CommandRequest (numbered)
+                .map(objects -> new EventResponse(objects.getT2().getCommand() + " " + objects.getT1()))
+                // use the Flux logger to output each flux event
+                .log();
     }
 
+    /**
+     * This @MessageMapping is intended to be used "fire --> forget" style.
+     * When a new CommandRequest is received, a new mono is returned which is empty.
+     * @param request
+     * @return
+     */
     @MessageMapping("notify")
     public Mono<Void> fireAndForget(CommandRequest request) {
         log.info("Received fire-and-forget request: {}", request);
