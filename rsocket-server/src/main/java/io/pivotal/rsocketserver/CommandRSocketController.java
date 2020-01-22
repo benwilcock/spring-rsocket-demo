@@ -25,6 +25,7 @@ public class CommandRSocketController {
     @MessageMapping("command")
     Mono<EventResponse> requestResponse(CommandRequest request) {
         log.info("Received request-response request: {}", request);
+        // create a Mono containing a single EventResponse and return it
         return Mono.just(new EventResponse(request.getCommand()));
     }
 
@@ -38,8 +39,14 @@ public class CommandRSocketController {
     Flux<EventResponse> stream(CommandRequest request) {
         log.info("Received stream request: {}", request);
         return Flux
+                // create a new Flux emitting an element every 1 second
                 .interval(Duration.ofSeconds(1))
-                .map(response -> new EventResponse(request.getCommand()));
+                // index the Flux
+                .index()
+                // create a Flux of new EventResponses using the indexed Flux
+                .map(objects -> new EventResponse(request.getCommand() + " " + objects.getT1()))
+                // use the Flux logger to output each flux event
+                .log();
     }
 
     /**
@@ -71,6 +78,7 @@ public class CommandRSocketController {
     @MessageMapping("notify")
     public Mono<Void> fireAndForget(CommandRequest request) {
         log.info("Received fire-and-forget request: {}", request);
+        // create an empty (Void) Mono and return it
         return Mono.empty();
     }
 }
