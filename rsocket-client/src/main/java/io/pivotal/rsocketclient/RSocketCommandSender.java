@@ -1,56 +1,66 @@
 package io.pivotal.rsocketclient;
 
 
+import io.pivotal.rsocketclient.data.CommandRequest;
+import io.pivotal.rsocketclient.data.EventResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import reactor.core.publisher.Flux;
 
-import java.time.Duration;
-import java.util.Arrays;
-
 @Slf4j
 @ShellComponent
 public class RSocketCommandSender {
 
-    private final RSocketClient rSocketClient;
+    private final RSocketRequester rsocketRequester;
 
     @Autowired
-    public RSocketCommandSender(RSocketClient rSocketClient) {
-        this.rSocketClient = rSocketClient;
+    public RSocketCommandSender(RSocketRequester.Builder rsocketRequesterBuilder) {
+        this.rsocketRequester = rsocketRequesterBuilder
+                .connectTcp("localhost", 7000).block();
     }
 
-    @ShellMethod("Send one request to the RSocket server. No response will be returned.")
-    public void fireAndForget(@ShellOption(defaultValue = "fire-and-forget") String command) {
-        log.info("\nSending fire and forget request. Expect no response (check server)...");
-        rSocketClient.notifyCommand(command).subscribe().dispose();
-        log.info("\nDone.");
-        return;
-    }
-
-    @ShellMethod("Send one request to the RSocket server. One response will be printed.")
+    @ShellMethod("Request-Response. Send one request. One response will be printed.")
     public void requestResponse(@ShellOption(defaultValue = "request") String command) {
-        log.info("\nSending one request. Waiting for one response...");
-        rSocketClient.requestResponse(command).subscribe(cr -> log.info("\nEvent response is: {}", cr));
-        return;
+        log.info("\nRequest-Response. Sending one request. Waiting for one response...");
+        this.rsocketRequester
+                .route("command")
+                .data(new CommandRequest(command))
+                .retrieveMono(EventResponse.class)
+                .subscribe(er -> log.info("Response received: {}", er));
     }
 
-    @ShellMethod("Send a stream of 10 requests to the RSocket server. The responses stream will be printed.")
-    public void channel(@ShellOption(defaultValue = "channel") String command1){
-        log.info("\nSending ten requests. Waiting for ten responses...");
-        rSocketClient.channelCommand(command1).subscribe(er -> log.info("\nEvent Response is {}", er));
-        return;
+    @ShellMethod("Fire-And-Forget. Send one request. No response will be returned.")
+    public void fireAndForget(@ShellOption(defaultValue = "fire-and-forget") String command) {
+        log.info("\nFire-And-Forget. Sending one request. Expect no response (check server)...");
+        this.rsocketRequester
+                .route("notify")
+                .data(new CommandRequest(command))
+                .send()
+                .subscribe()
+                .dispose();
     }
 
+    @ShellMethod("Request-Stream. Send one request. Many responses (stream) will be printed.")
+    public void requestStream(@ShellOption(defaultValue = "stream") String command) {
+        log.info("\nRequest-Stream. Sending one request. Waiting for unlimited responses (Stop process to quit)...");
+        this.rsocketRequester
+                .route("events")
+                .data(new CommandRequest(command))
+                .retrieveFlux(EventResponse.class)
+                .subscribe(er -> log.info("Response received: {}", er));
+    }
 
-    @ShellMethod("Send one request to the RSocket server. Many responses (stream) will be printed.")
-    public void stream(@ShellOption(defaultValue = "stream") String command) {
-        log.info("\nSending one request. Waiting for unlimited responses...");
-        rSocketClient.streamCommand(command).subscribe(er -> log.info("\nEvent response is: {}", er));
-        return;
+    @ShellMethod("Channel. Stream ten requests. Ten responses (stream) will be printed.")
+    public void channel(@ShellOption(defaultValue = "channel") String command){
+        log.info("\nChannel. Sending ten requests. Waiting for ten responses...");
+        this.rsocketRequester
+                .route("channel")
+                .data(Flux.range(0,10).map(cr -> new CommandRequest(command)), CommandRequest.class)
+                .retrieveFlux(EventResponse.class)
+                .subscribe(er -> log.info("Response received: {}", er));
     }
 }
