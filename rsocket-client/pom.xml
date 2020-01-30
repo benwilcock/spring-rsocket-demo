@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.pivotal</groupId>
-	<artifactId>rsocketclient</artifactId>
+	<artifactId>rsocket-client</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rsocketclient</name>
 	<description>Demo project for Spring Boot</description>

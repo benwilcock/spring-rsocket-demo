@@ -13,12 +13,12 @@ import reactor.core.publisher.Flux;
 
 @Slf4j
 @ShellComponent
-public class RSocketCommandSender {
+public class RSocketClient {
 
     private final RSocketRequester rsocketRequester;
 
     @Autowired
-    public RSocketCommandSender(RSocketRequester.Builder rsocketRequesterBuilder) {
+    public RSocketClient(RSocketRequester.Builder rsocketRequesterBuilder) {
         this.rsocketRequester = rsocketRequesterBuilder
                 .connectTcp("localhost", 7000).block();
     }
