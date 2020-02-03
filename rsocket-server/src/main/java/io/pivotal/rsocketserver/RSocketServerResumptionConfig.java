@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Profile("resumption")
 @Component
-public class RSocketServerSetup implements ServerRSocketFactoryProcessor {
+public class RSocketServerResumptionConfig implements ServerRSocketFactoryProcessor {
 
     /**
      * In this method we can configure the ServerRSocketFactory. In this case, we are
