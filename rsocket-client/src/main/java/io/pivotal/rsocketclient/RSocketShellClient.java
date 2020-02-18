@@ -2,50 +2,54 @@ package io.pivotal.rsocketclient;
 
 
 import io.pivotal.rsocketclient.data.Message;
+import jdk.nashorn.tools.Shell;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.shell.standard.ShellOption;
 import reactor.core.publisher.Flux;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @ShellComponent
-public class RSocketClient {
+public class RSocketShellClient {
 
     private final RSocketRequester rsocketRequester;
     private static final String ORIGIN = "Client";
-    private static final String RR = "Request-Response";
-    private static final String FAF = "Fire-And-Forget";
+    private static final String REQUEST_RESPONSE = "Request-Response";
+    private static final String FIRE_AND_FORGET = "Fire-And-Forget";
     private static final String STREAM = "Stream";
     private static final String CHANNEL = "Channel";
 
     @Autowired
-    public RSocketClient(RSocketRequester.Builder rsocketRequesterBuilder) {
+    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder) {
         this.rsocketRequester = rsocketRequesterBuilder
                 .connectTcp("localhost", 7000).block();
     }
 
     @ShellMethod("Send one request. One response will be printed.")
-    public void requestResponse() {
+    public void requestResponse() throws InterruptedException {
         log.info("\nRequest-Response. Sending one request. Waiting for one response...");
         this.rsocketRequester
-                .route("command")
-                .data(new Message(ORIGIN, RR))
+                .route("request-response")
+                .data(new Message(ORIGIN, REQUEST_RESPONSE))
                 .retrieveMono(Message.class)
-                .subscribe(message -> log.info("Response received: {}", message));
+                .subscribe(message -> log.info("\nServer says message received. \nResponse was: {}", message));
+        TimeUnit.SECONDS.sleep(2);
     }
 
     @ShellMethod("Send one request. No response will be returned.")
-    public void fireAndForget() {
-        log.info("\nFire-And-Forget. Sending one request. Expect no response (check server)...");
+    public void fireAndForget() throws InterruptedException {
+        log.info("\nFire-And-Forget. Sending one request. Expect no response (check server console log)...");
         this.rsocketRequester
-                .route("notify")
-                .data(new Message(ORIGIN, FAF))
+                .route("fire-and-forget")
+                .data(new Message(ORIGIN, FIRE_AND_FORGET))
                 .send()
                 .subscribe()
                 .dispose();
+        TimeUnit.SECONDS.sleep(2);
     }
 
     @ShellMethod("Send one request. Many responses (stream) will be printed.")

@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @Disabled
 @SpringBootTest
-class RsocketclientApplicationTests {
+class RsocketShellClientApplicationTests {
 
 	@Test
 	void contextLoads() {

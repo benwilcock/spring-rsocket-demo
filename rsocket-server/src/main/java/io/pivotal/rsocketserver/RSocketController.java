@@ -12,7 +12,7 @@ import java.time.Instant;
 
 @Slf4j
 @Controller
-public class RSocketServerController {
+public class RSocketController {
 
     private static final String ORIGIN = "Server";
     private static final String RR = "Request-Response";
@@ -25,11 +25,11 @@ public class RSocketServerController {
      * @param request
      * @return
      */
-    @MessageMapping("command")
-    Mono<Message> requestResponse(Message request) {
+    @MessageMapping("request-response")
+    Message requestResponse(Message request) {
         log.info("Received request-response request: {}", request);
         // create a Mono containing a single Message and return it
-        return Mono.just(new Message(ORIGIN, RR));
+        return new Message(ORIGIN, RR);
     }
 
     /**
@@ -38,11 +38,11 @@ public class RSocketServerController {
      * @param request
      * @return
      */
-    @MessageMapping("notify")
-    public Mono<Void> fireAndForget(Message request) {
+    @MessageMapping("fire-and-forget")
+    public void fireAndForget(Message request) {
         log.info("Received fire-and-forget request: {}", request);
         // create an empty (Void) Mono and return it
-        return Mono.empty();
+        return;
     }
 
     /**
