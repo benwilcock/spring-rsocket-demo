@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,34 +13,34 @@ import java.time.Instant;
 @Controller
 public class RSocketController {
 
-    private static final String ORIGIN = "Server";
-    private static final String RR = "Request-Response";
+    private static final String SERVER = "Server";
+    private static final String RESPONSE = "Response";
     private static final String STREAM = "Stream";
     private static final String CHANNEL = "Channel";
 
     /**
      * This @MessageMapping is intended to be used "request --> response" style.
-     * For each command received, a simple response is generated showing the command sent.
+     * For each Message received, a new Message is returned with ORIGIN=Server and INTERACTION=Request-Response.
      * @param request
-     * @return
+     * @return Message
      */
     @MessageMapping("request-response")
     Message requestResponse(Message request) {
         log.info("Received request-response request: {}", request);
-        // create a Mono containing a single Message and return it
-        return new Message(ORIGIN, RR);
+        // create a single Message and return it
+        return new Message(SERVER, RESPONSE);
     }
 
     /**
      * This @MessageMapping is intended to be used "fire --> forget" style.
-     * When a new CommandRequest is received, a new mono is returned which is empty.
+     * When a new CommandRequest is received, nothing is returned (void)
      * @param request
      * @return
      */
     @MessageMapping("fire-and-forget")
     public void fireAndForget(Message request) {
         log.info("Received fire-and-forget request: {}", request);
-        // create an empty (Void) Mono and return it
+        // return a void
         return;
     }
 
@@ -60,7 +59,7 @@ public class RSocketController {
                 // index the Flux
                 .index()
                 // create a Flux of new Messages using the indexed Flux
-                .map(objects -> new Message(ORIGIN, STREAM, objects.getT1()))
+                .map(objects -> new Message(SERVER, STREAM, objects.getT1()))
                 // use the Flux logger to output each flux event
                 .log();
     }
@@ -82,7 +81,7 @@ public class RSocketController {
                 // then every 1 second per element received
                 .delayElements(Duration.ofSeconds(1))
                 // create a new Flux with one Message for each element (numbered)
-                .map(objects -> new Message(ORIGIN, CHANNEL, objects.getT1()))
+                .map(objects -> new Message(SERVER, CHANNEL, objects.getT1()))
                 // log what is being sent
                 .log();
     }
