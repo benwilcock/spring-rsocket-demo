@@ -30,12 +30,12 @@ public class RSocketShellClient {
 
     @ShellMethod("Send one request. One response will be printed.")
     public void requestResponse() throws InterruptedException {
-        log.info("\nRequest-Response. Sending one request. Waiting for one response...");
+        log.info("\nSending one request. Waiting for one response...");
         this.rsocketRequester
                 .route("request-response")
                 .data(new Message(CLIENT, REQUEST))
                 .retrieveMono(Message.class)
-                .subscribe(message -> log.info("\nServer says message received. \nResponse was: {}", message));
+                .subscribe(message -> log.info("\nResponse was: {}", message));
         TimeUnit.SECONDS.sleep(2);
     }
 
