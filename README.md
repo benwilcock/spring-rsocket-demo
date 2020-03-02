@@ -1,4 +1,3 @@
 # spring-rsocket-demo
 
-Take a look at the `/docs`
-
+Follow along at [spring.io](https://spring.io/blog)
