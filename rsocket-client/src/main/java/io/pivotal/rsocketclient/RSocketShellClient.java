@@ -31,12 +31,12 @@ public class RSocketShellClient {
     @ShellMethod("Send one request. One response will be printed.")
     public void requestResponse() throws InterruptedException {
         log.info("\nSending one request. Waiting for one response...");
-        this.rsocketRequester
+        Message message = this.rsocketRequester
                 .route("request-response")
                 .data(new Message(CLIENT, REQUEST))
                 .retrieveMono(Message.class)
-                .subscribe(message -> log.info("\nResponse was: {}", message));
-        TimeUnit.SECONDS.sleep(2);
+                .block();
+        log.info("\nResponse was: {}", message);
     }
 
     @ShellMethod("Send one request. No response will be returned.")
@@ -46,9 +46,7 @@ public class RSocketShellClient {
                 .route("fire-and-forget")
                 .data(new Message(CLIENT, FIRE_AND_FORGET))
                 .send()
-                .subscribe()
-                .dispose();
-        TimeUnit.SECONDS.sleep(2);
+                .block();
     }
 
     @ShellMethod("Send one request. Many responses (stream) will be printed.")
