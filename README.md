@@ -1,6 +1,4 @@
-# spring-rsocket-demo
-
-# Gettting Started With RSocket
+# Gettting Started With RSocket On Spring Boot
 
 This code accompanies the RSocket blog series over on [spring.io](https://spring.io/blog).
 
