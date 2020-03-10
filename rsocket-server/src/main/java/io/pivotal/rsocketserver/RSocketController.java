@@ -52,7 +52,7 @@ public class RSocketController {
     Flux<Message> stream(Message request) {
         log.info("Received stream request: {}", request);
         return Flux
-                // create a new Flux emitting an element every 1 second
+                // create a new Flux emitting an element every 1 seconds
                 .interval(Duration.ofSeconds(1))
                 // index the Flux
                 .index()
