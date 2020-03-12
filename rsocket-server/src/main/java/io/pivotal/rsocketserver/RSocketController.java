@@ -52,12 +52,10 @@ public class RSocketController {
     Flux<Message> stream(Message request) {
         log.info("Received stream request: {}", request);
         return Flux
-                // create a new Flux emitting an element every 1 seconds
+                // create a new indexed Flux emitting one element every second
                 .interval(Duration.ofSeconds(1))
-                // index the Flux
-                .index()
                 // create a Flux of new Messages using the indexed Flux
-                .map(objects -> new Message(SERVER, STREAM, objects.getT1()))
+                .map(index -> new Message(SERVER, STREAM, index))
                 // use the Flux logger to output each flux event
                 .log();
     }
@@ -72,14 +70,12 @@ public class RSocketController {
     Flux<Message> channel(Flux<Message> requests) {
         log.info("Received channel request (stream) at {}", Instant.now());
         return requests
-                // Create an indexed flux which gives each element a number
-                .index()
                 // log what has been received
                 .log()
                 // then every 1 second per element received
                 .delayElements(Duration.ofSeconds(1))
                 // create a new Flux with one Message for each element (numbered)
-                .map(objects -> new Message(SERVER, CHANNEL, objects.getT1()))
+                .map(input -> new Message(SERVER, CHANNEL, input.getIndex()))
                 // log what is being sent
                 .log();
     }
