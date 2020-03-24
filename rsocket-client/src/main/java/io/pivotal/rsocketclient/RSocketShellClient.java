@@ -65,11 +65,11 @@ public class RSocketShellClient {
     @ShellMethod("Stream ten requests. Ten responses (stream) will be printed.")
     public void channel(){
         log.info("\nChannel. Sending ten requests. Waiting for ten responses...");
-        this.rsocketRequester
+        disposable = this.rsocketRequester
                 .route("channel")
                 .data(Flux.range(0,10).map(integer -> new Message(CLIENT, CHANNEL, integer)), Message.class)
                 .retrieveFlux(Message.class)
-                .subscribe(er -> log.info("Response received: {}", er));
+                .subscribe(er -> log.info("Response received: {} (Type 's' to stop.)", er));
     }
 
     @ShellMethod("Stop streaming messages from the server.")
