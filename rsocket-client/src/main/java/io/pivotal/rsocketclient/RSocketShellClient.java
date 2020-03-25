@@ -3,6 +3,8 @@ package io.pivotal.rsocketclient;
 
 import io.pivotal.rsocketclient.data.Message;
 import lombok.extern.slf4j.Slf4j;
+
+import org.jline.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.shell.standard.ShellComponent;
@@ -10,7 +12,9 @@ import org.springframework.shell.standard.ShellMethod;
 
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -54,28 +58,31 @@ public class RSocketShellClient {
 
     @ShellMethod("Send one request. Many responses (stream) will be printed.")
     public void stream() {
-        log.info("\nRequest-Stream. Sending one request. Waiting for responses (Type 's' to stop)...");
+        log.info("\n\n**** Request-Stream\n**** Send one request.\n**** Log responses.\n**** Type 's' to stop.");
         disposable = this.rsocketRequester
                 .route("stream")
                 .data(new Message(CLIENT, STREAM))
                 .retrieveFlux(Message.class)
-                .subscribe(er -> log.info("New Response: {} (Type 's' to stop.)", er));
+                .subscribe(message -> log.info("Response: {} (Type 's' to stop.)", message));
     }
 
     @ShellMethod("Stream ten requests. Ten responses (stream) will be printed.")
     public void channel(){
-        log.info("\nChannel. Sending ten requests. Waiting for ten responses...");
+        log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Asks for responses 1 second apart for 5 seconds, then 3 seconds apart after that.\n***** Type 's' to stop.\n\n");
         disposable = this.rsocketRequester
                 .route("channel")
-                .data(Flux.range(0,10).map(integer -> new Message(CLIENT, CHANNEL, integer)), Message.class)
+                // .data(Flux.range(0,10).map(integer -> new Message(CLIENT, CHANNEL, integer)).log(), Message.class)
+                .data(Flux.concat(Mono.just(Duration.ofSeconds(1)), Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(5))))
                 .retrieveFlux(Message.class)
-                .subscribe(er -> log.info("Response received: {} (Type 's' to stop.)", er));
+                .subscribe(message -> log.info("Received: {} (Type 's' to stop.)", message));
     }
 
     @ShellMethod("Stop streaming messages from the server.")
     public void s(){
+        log.info("Stopping the incoming stream...");
         if(null != disposable){
             disposable.dispose();
         }
+        log.info("Stream stopped.");
     }
 }

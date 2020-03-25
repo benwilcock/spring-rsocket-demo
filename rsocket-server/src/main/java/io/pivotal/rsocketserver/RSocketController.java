@@ -25,7 +25,7 @@ public class RSocketController {
      * @return Message
      */
     @MessageMapping("request-response")
-    Message requestResponse(Message request) {
+    Message requestResponse(final Message request) {
         log.info("Received request-response request: {}", request);
         // create a single Message and return it
         return new Message(SERVER, RESPONSE);
@@ -38,7 +38,7 @@ public class RSocketController {
      * @return
      */
     @MessageMapping("fire-and-forget")
-    public void fireAndForget(Message request) {
+    public void fireAndForget(final Message request) {
         log.info("Received fire-and-forget request: {}", request);
     }
 
@@ -49,7 +49,7 @@ public class RSocketController {
      * @return
      */
     @MessageMapping("stream")
-    Flux<Message> stream(Message request) {
+    Flux<Message> stream(final Message request) {
         log.info("Received stream request: {}", request);
         return Flux
                 // create a new indexed Flux emitting one element every second
@@ -67,16 +67,11 @@ public class RSocketController {
      * @return
      */
     @MessageMapping("channel")
-    Flux<Message> channel(Flux<Message> requests) {
-        log.info("Received channel request (stream) at {}", Instant.now());
+    Flux<Message> channel(final Flux<Duration> requests) {
+
         return requests
-                // log what has been received
-                .log()
-                // then every 1 second per element received
-                .delayElements(Duration.ofSeconds(1))
-                // create a new Flux with one Message for each element (numbered)
-                .map(input -> new Message(SERVER, CHANNEL, input.getIndex()))
-                // log what is being sent
-                .log();
+                        .switchMap(duration -> Flux.empty()
+                                .interval(duration)
+                                .map(index -> new Message(SERVER, CHANNEL, index)));
     }
 }
