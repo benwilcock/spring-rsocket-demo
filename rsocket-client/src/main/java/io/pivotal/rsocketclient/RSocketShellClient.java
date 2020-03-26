@@ -70,18 +70,18 @@ public class RSocketShellClient {
     public void channel(){
         log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Type 's' to stop.\n\n");
 
-        Mono<Duration> delaySetting1 = Mono.just(Duration.ofSeconds(1));
-        Mono<Duration> delaySetting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(5));
-        Mono<Duration> delaySetting3 = Mono.just(Duration.ofSeconds(5)).delayElement(Duration.ofSeconds(15));
+        Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
+        Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(5));
+        Mono<Duration> setting3 = Mono.just(Duration.ofSeconds(5)).delayElement(Duration.ofSeconds(15));
 
-        Flux<Duration> settings = Flux.concat(delaySetting1, delaySetting2, delaySetting3)
+        Flux<Duration> settings = Flux.concat(setting1, setting2, setting3)
                                         .doOnNext(d -> log.info("\nSetting a {} second interval...\n", d.getSeconds()));
 
         disposable = this.rsocketRequester
                             .route("channel")
                             .data(settings)
                             .retrieveFlux(Message.class)
-                            .subscribe(message -> log.info("Received: {} (Type 's' to stop.)", message));
+                            .subscribe(message -> log.info("Received: {} \n(Type 's' to stop.)", message));
     }
 
     @ShellMethod("Stop streaming.")
