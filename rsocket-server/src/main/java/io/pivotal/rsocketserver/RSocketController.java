@@ -70,11 +70,9 @@ public class RSocketController {
     Flux<Message> channel(final Flux<Duration> requests) {
 
         return requests
-                        .switchMap(duration -> Flux.interval(duration)
-                                                   .map(index -> {
-                                                        log.info("Using {} second interval.", duration.getSeconds());
-                                                        return new Message(SERVER, CHANNEL, index);
-                                                   }))
+                    .doOnNext(duration -> log.info("\nSetting message interval to {} seconds.\n", duration.getSeconds()))
+                    .switchMap(duration -> Flux.interval(duration)
+                                                   .map(index -> new Message(SERVER, CHANNEL, index)))
                                                    .log();
     }
 }

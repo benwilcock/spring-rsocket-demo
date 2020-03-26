@@ -66,18 +66,25 @@ public class RSocketShellClient {
                 .subscribe(message -> log.info("Response: {} (Type 's' to stop.)", message));
     }
 
-    @ShellMethod("Stream ten requests. Ten responses (stream) will be printed.")
+    @ShellMethod("Stream some settings to the server. Stream of responses will be printed.")
     public void channel(){
-        log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Asks for responses 1 second apart for 5 seconds, then 3 seconds apart after that.\n***** Type 's' to stop.\n\n");
+        log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Type 's' to stop.\n\n");
+
+        Mono<Duration> delaySetting1 = Mono.just(Duration.ofSeconds(1));
+        Mono<Duration> delaySetting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(5));
+        Mono<Duration> delaySetting3 = Mono.just(Duration.ofSeconds(5)).delayElement(Duration.ofSeconds(15));
+
+        Flux<Duration> settings = Flux.concat(delaySetting1, delaySetting2, delaySetting3)
+                                        .doOnNext(d -> log.info("\nSetting a {} second interval...\n", d.getSeconds()));
+
         disposable = this.rsocketRequester
-                .route("channel")
-                // .data(Flux.range(0,10).map(integer -> new Message(CLIENT, CHANNEL, integer)).log(), Message.class)
-                .data(Flux.concat(Mono.just(Duration.ofSeconds(1)), Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(5))))
-                .retrieveFlux(Message.class)
-                .subscribe(message -> log.info("Received: {} (Type 's' to stop.)", message));
+                            .route("channel")
+                            .data(settings)
+                            .retrieveFlux(Message.class)
+                            .subscribe(message -> log.info("Received: {} (Type 's' to stop.)", message));
     }
 
-    @ShellMethod("Stop streaming messages from the server.")
+    @ShellMethod("Stop streaming.")
     public void s(){
         log.info("Stopping the incoming stream...");
         if(null != disposable){
