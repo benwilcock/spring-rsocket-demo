@@ -68,7 +68,6 @@ public class RSocketController {
      */
     @MessageMapping("channel")
     Flux<Message> channel(final Flux<Duration> requests) {
-
         return requests
                     .doOnNext(duration -> log.info("\nSetting message interval to {} seconds.\n", duration.getSeconds()))
                     .switchMap(duration -> Flux.interval(duration)
