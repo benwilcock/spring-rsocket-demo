@@ -61,8 +61,8 @@ public class RSocketController {
     }
 
     /**
-     * This @MessageMapping is intended to be used "stream --> stream" style.
-     * When a new stream of CommandRequests is received, a new stream of Messages is started and returned to the client.
+     * This @MessageMapping is intended to be used "stream <--> stream" style.
+     * The incoming stream contains the interval settings (in seconds) for the outgoing stream of messages. 
      * @param requests
      * @return
      */
@@ -70,8 +70,11 @@ public class RSocketController {
     Flux<Message> channel(final Flux<Duration> requests) {
 
         return requests
-                        .switchMap(duration -> Flux.empty()
-                                .interval(duration)
-                                .map(index -> new Message(SERVER, CHANNEL, index)));
+                        .switchMap(duration -> Flux.interval(duration)
+                                                   .map(index -> {
+                                                        log.info("Using {} second interval.", duration.getSeconds());
+                                                        return new Message(SERVER, CHANNEL, index);
+                                                   }))
+                                                   .log();
     }
 }
