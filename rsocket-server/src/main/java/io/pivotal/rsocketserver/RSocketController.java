@@ -63,14 +63,14 @@ public class RSocketController {
     /**
      * This @MessageMapping is intended to be used "stream <--> stream" style.
      * The incoming stream contains the interval settings (in seconds) for the outgoing stream of messages. 
-     * @param requests
+     * @param settings
      * @return
      */
     @MessageMapping("channel")
-    Flux<Message> channel(final Flux<Duration> requests) {
-        return requests
-                    .doOnNext(duration -> log.info("\nSetting message interval to {} seconds.\n", duration.getSeconds()))
-                    .switchMap(duration -> Flux.interval(duration)
+    Flux<Message> channel(final Flux<Duration> settings) {
+        return settings
+                    .doOnNext(delay -> log.info("\nSetting interval to {} second(s).\n", delay.getSeconds()))
+                    .switchMap(delay -> Flux.interval(delay)
                                                    .map(index -> new Message(SERVER, CHANNEL, index)))
                                                    .log();
     }
