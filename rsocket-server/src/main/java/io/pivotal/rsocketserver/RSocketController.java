@@ -69,8 +69,8 @@ public class RSocketController {
     @MessageMapping("channel")
     Flux<Message> channel(final Flux<Duration> settings) {
         return settings
-                    .doOnNext(delay -> log.info("\nSetting interval to {} second(s).\n", delay.getSeconds()))
-                    .switchMap(delay -> Flux.interval(delay)
+                    .doOnNext(setting -> log.info("\nFrequency setting is {} second(s).\n", setting.getSeconds()))
+                    .switchMap(setting -> Flux.interval(setting)
                                                    .map(index -> new Message(SERVER, CHANNEL, index)))
                                                    .log();
     }
