@@ -75,7 +75,7 @@ public class RSocketShellClient {
         Mono<Duration> setting3 = Mono.just(Duration.ofSeconds(5)).delayElement(Duration.ofSeconds(15));
 
         Flux<Duration> settings = Flux.concat(setting1, setting2, setting3)
-                                        .doOnNext(d -> log.info("\nSending setting for {}-second interval.\n", d.getSeconds()));
+                                        .doOnNext(d -> log.info("\nSending setting for a {}-second interval.\n", d.getSeconds()));
 
         disposable = this.rsocketRequester
                             .route("channel")
