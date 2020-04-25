@@ -46,7 +46,7 @@ public class RSocketController {
                 );
 
         requester.route("status")
-                .data("Client ID: " + client + " connected at " + LocalDateTime.now())
+                .data(client + " CONNECTED " + LocalDateTime.now())
                 .retrieveMono(String.class)
                 .subscribe(
                         response -> log.info("Client {} has {}", client, response),

@@ -106,9 +106,4 @@ public class RSocketShellClient {
         }
         log.info("Stream stopped.");
     }
-
-//    @ShellMethod("Exit the application")
-//    public void quit(){
-//        rsocketRequester.rsocket().dispose();
-//    }
 }
