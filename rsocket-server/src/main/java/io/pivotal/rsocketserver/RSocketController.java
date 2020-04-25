@@ -3,11 +3,19 @@ package io.pivotal.rsocketserver;
 import io.pivotal.rsocketserver.data.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.rsocket.RSocketRequester;
+import org.springframework.messaging.rsocket.annotation.ConnectMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -17,6 +25,35 @@ public class RSocketController {
     private static final String RESPONSE = "Response";
     private static final String STREAM = "Stream";
     private static final String CHANNEL = "Channel";
+
+    private final List<RSocketRequester> CLIENTS = new ArrayList<>();
+
+
+    @ConnectMapping("connect")
+    void handle(RSocketRequester requester, @Payload String client) {
+
+        // put the new client in the list of attached clients
+        CLIENTS.add(requester);
+
+        // when the client disconnects, remove them
+        requester.rsocket()
+                .onClose()
+                .doFinally(
+                        f -> {
+                            CLIENTS.remove(requester);
+                            log.info("Detached client: {}", client);
+                        }
+                );
+
+        requester.route("status")
+                .data("Client ID: " + client + " connected at " + LocalDateTime.now())
+                .retrieveMono(String.class)
+                .subscribe(
+                        response -> log.info("Client {} has {}", client, response),
+                        error -> log.error("error: {}", error)
+                );
+
+    }
 
     /**
      * This @MessageMapping is intended to be used "request --> response" style.

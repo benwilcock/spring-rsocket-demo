@@ -6,15 +6,22 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.jline.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
+import org.springframework.messaging.rsocket.RSocketStrategies;
+import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.util.MimeTypeUtils;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -30,9 +37,16 @@ public class RSocketShellClient {
     private static Disposable disposable;
 
     @Autowired
-    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder) {
+    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies rSocketStrategies) {
+        String client = UUID.randomUUID().toString();
+        log.info("Connecting using client ID: {}", client);
         this.rsocketRequester = rsocketRequesterBuilder
-                .connectTcp("localhost", 7000).block();
+                .rsocketFactory(RSocketMessageHandler.clientResponder(rSocketStrategies, new ClientHandler()))
+                .dataMimeType(MimeTypeUtils.APPLICATION_JSON)
+                .setupRoute("connect")
+                .setupData(client)
+                .connectTcp("localhost", 7000)
+                .block();
     }
 
     @ShellMethod("Send one request. One response will be printed.")
@@ -92,4 +106,9 @@ public class RSocketShellClient {
         }
         log.info("Stream stopped.");
     }
+
+//    @ShellMethod("Exit the application")
+//    public void quit(){
+//        rsocketRequester.rsocket().dispose();
+//    }
 }
