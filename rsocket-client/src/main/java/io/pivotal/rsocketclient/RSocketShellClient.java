@@ -106,4 +106,11 @@ public class RSocketShellClient {
         }
         log.info("Stream stopped.");
     }
+
+    void kill(){
+        if(!rsocketRequester.rsocket().isDisposed()){
+            log.info("Disposing of the RSocket");
+            rsocketRequester.rsocket().dispose();
+        }
+    }
 }

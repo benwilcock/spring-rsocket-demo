@@ -28,7 +28,6 @@ public class RSocketController {
 
     private final List<RSocketRequester> CLIENTS = new ArrayList<>();
 
-
     @ConnectMapping("connect")
     void handle(RSocketRequester requester, @Payload String client) {
 
@@ -41,7 +40,7 @@ public class RSocketController {
                 .doFinally(
                         f -> {
                             CLIENTS.remove(requester);
-                            log.info("Detached client: {}", client);
+                            log.info("Disconnected client: {}", client);
                         }
                 );
 
@@ -52,7 +51,6 @@ public class RSocketController {
                         response -> log.info("Client {} has {}", client, response),
                         error -> log.error("error: {}", error)
                 );
-
     }
 
     /**
