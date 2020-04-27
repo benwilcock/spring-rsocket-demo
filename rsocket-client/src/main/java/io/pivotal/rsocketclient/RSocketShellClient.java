@@ -19,6 +19,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -47,6 +48,16 @@ public class RSocketShellClient {
                 .setupData(client)
                 .connectTcp("localhost", 7000)
                 .block();
+
+        this.rsocketRequester.rsocket()
+                .onClose()
+                .doFirst(() -> log.info("First"))
+                .doOnNext(f -> log.info("Next"))
+                .doOnError(error -> log.error("Error: {}", error))
+                .doOnCancel(() -> log.info("Cancel"))
+                .doFinally(f -> log.info("Finally: {}", f))
+                .doOnTerminate(() -> log.info("Terminate"))
+                .doAfterTerminate(() -> log.info("After Terminate"));
     }
 
     @ShellMethod("Send one request. One response will be printed.")
@@ -107,10 +118,14 @@ public class RSocketShellClient {
         log.info("Stream stopped.");
     }
 
+
+    @PreDestroy
     void kill(){
         if(!rsocketRequester.rsocket().isDisposed()){
-            log.info("Disposing of the RSocket");
+            log.info("Disposing of the RSocket requester.");
             rsocketRequester.rsocket().dispose();
         }
+
+        log.info("Shutting down the client.");
     }
 }

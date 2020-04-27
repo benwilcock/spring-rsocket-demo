@@ -37,12 +37,28 @@ public class RSocketController {
         // when the client disconnects, remove them
         requester.rsocket()
                 .onClose()
-                .doFinally(
-                        f -> {
-                            CLIENTS.remove(requester);
-                            log.info("Disconnected client: {}", client);
-                        }
-                );
+
+
+                .doFirst(() -> log.info("First"))
+                .doOnNext(f -> log.info("Next"))
+                .doOnError(error -> log.error("Error: {}", error))
+                .doOnCancel(() -> log.info("Cancel"))
+                .doFinally(f -> log.info("Finally: {}", f))
+                .doOnTerminate(() -> log.info("Terminate"))
+                .doAfterTerminate(() -> log.info("After Terminate"));
+
+
+
+//                .subscribe(
+//                        consumer -> log.info("Consumer"),
+//                error -> log.error("Error: {}", error));
+
+//                .doFinally(
+//                        f -> {
+//                            CLIENTS.remove(requester);
+//                            log.info("Disconnected client: {}", client);
+//                        }
+//                );
 
         requester.route("status")
                 .data(client + " CONNECTED " + LocalDateTime.now())
