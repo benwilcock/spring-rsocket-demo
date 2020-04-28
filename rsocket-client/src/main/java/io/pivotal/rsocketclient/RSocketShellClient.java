@@ -3,17 +3,12 @@ package io.pivotal.rsocketclient;
 
 import io.pivotal.rsocketclient.data.Message;
 import lombok.extern.slf4j.Slf4j;
-
-import org.jline.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-
-import org.springframework.stereotype.Controller;
 import org.springframework.util.MimeTypeUtils;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -21,9 +16,8 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.PreDestroy;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CancellationException;
 
 @Slf4j
 @ShellComponent
@@ -48,16 +42,6 @@ public class RSocketShellClient {
                 .setupData(client)
                 .connectTcp("localhost", 7000)
                 .block();
-
-        this.rsocketRequester.rsocket()
-                .onClose()
-                .doFirst(() -> log.info("First"))
-                .doOnNext(f -> log.info("Next"))
-                .doOnError(error -> log.error("Error: {}", error))
-                .doOnCancel(() -> log.info("Cancel"))
-                .doFinally(f -> log.info("Finally: {}", f))
-                .doOnTerminate(() -> log.info("Terminate"))
-                .doAfterTerminate(() -> log.info("After Terminate"));
     }
 
     @ShellMethod("Send one request. One response will be printed.")
@@ -92,7 +76,7 @@ public class RSocketShellClient {
     }
 
     @ShellMethod("Stream some settings to the server. Stream of responses will be printed.")
-    public void channel(){
+    public void channel() {
         log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Type 's' to stop.\n\n");
 
         Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
@@ -100,32 +84,29 @@ public class RSocketShellClient {
         Mono<Duration> setting3 = Mono.just(Duration.ofSeconds(5)).delayElement(Duration.ofSeconds(15));
 
         Flux<Duration> settings = Flux.concat(setting1, setting2, setting3)
-                                        .doOnNext(d -> log.info("\nSending setting for a {}-second interval.\n", d.getSeconds()));
+                .doOnNext(d -> log.info("\nSending setting for a {}-second interval.\n", d.getSeconds()));
 
         disposable = this.rsocketRequester
-                            .route("channel")
-                            .data(settings)
-                            .retrieveFlux(Message.class)
-                            .subscribe(message -> log.info("Received: {} \n(Type 's' to stop.)", message));
+                .route("channel")
+                .data(settings)
+                .retrieveFlux(Message.class)
+                .subscribe(message -> log.info("Received: {} \n(Type 's' to stop.)", message));
     }
 
     @ShellMethod("Stop streaming.")
-    public void s(){
-        log.info("Stopping the incoming stream.");
-        if(null != disposable){
+    public void s() {
+        if (null != disposable) {
+            log.info("Stopping the incoming stream.");
             disposable.dispose();
+            log.info("Stream stopped.");
         }
-        log.info("Stream stopped.");
     }
 
-
     @PreDestroy
-    void kill(){
-        if(!rsocketRequester.rsocket().isDisposed()){
+    void shutdown() {
+        if (!rsocketRequester.rsocket().isDisposed()) {
             log.info("Disposing of the RSocket requester.");
             rsocketRequester.rsocket().dispose();
         }
-
-        log.info("Shutting down the client.");
     }
 }

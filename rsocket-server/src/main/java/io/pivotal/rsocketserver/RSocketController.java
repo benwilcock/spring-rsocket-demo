@@ -9,6 +9,7 @@ import org.springframework.messaging.rsocket.annotation.ConnectMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 
+import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -31,37 +32,29 @@ public class RSocketController {
     @ConnectMapping("connect")
     void handle(RSocketRequester requester, @Payload String client) {
 
-        // put the new client in the list of attached clients
-        CLIENTS.add(requester);
-
-        // when the client disconnects, remove them
         requester.rsocket()
                 .onClose()
+                .doFirst(() -> {
+                    // Add all new clients to a client list
+                    log.info("Adding client: {}", client);
+                    CLIENTS.add(requester);
+                })
+                .doOnError(error -> {
+                    // Warn when channels are closed by clients
+                    if (error instanceof ClosedChannelException) {
+                        log.warn("Channel to client {} has CLOSED", client);
+                    }
+                })
+                .doFinally(consumer -> {
+                    // Remove disconnected clients from the client list
+                    CLIENTS.remove(requester);
+                    log.info("Client {} has DISCONNECTED", client);
+                })
+                .subscribe();
 
-
-                .doFirst(() -> log.info("First"))
-                .doOnNext(f -> log.info("Next"))
-                .doOnError(error -> log.error("Error: {}", error))
-                .doOnCancel(() -> log.info("Cancel"))
-                .doFinally(f -> log.info("Finally: {}", f))
-                .doOnTerminate(() -> log.info("Terminate"))
-                .doAfterTerminate(() -> log.info("After Terminate"));
-
-
-
-//                .subscribe(
-//                        consumer -> log.info("Consumer"),
-//                error -> log.error("Error: {}", error));
-
-//                .doFinally(
-//                        f -> {
-//                            CLIENTS.remove(requester);
-//                            log.info("Disconnected client: {}", client);
-//                        }
-//                );
-
+        // Callback to client, confirming connection
         requester.route("status")
-                .data(client + " CONNECTED " + LocalDateTime.now())
+                .data("Client " + client + " CONNECTED at " + LocalDateTime.now())
                 .retrieveMono(String.class)
                 .subscribe(
                         response -> log.info("Client {} has {}", client, response),
@@ -72,6 +65,7 @@ public class RSocketController {
     /**
      * This @MessageMapping is intended to be used "request --> response" style.
      * For each Message received, a new Message is returned with ORIGIN=Server and INTERACTION=Request-Response.
+     *
      * @param request
      * @return Message
      */
@@ -85,6 +79,7 @@ public class RSocketController {
     /**
      * This @MessageMapping is intended to be used "fire --> forget" style.
      * When a new CommandRequest is received, nothing is returned (void)
+     *
      * @param request
      * @return
      */
@@ -96,6 +91,7 @@ public class RSocketController {
     /**
      * This @MessageMapping is intended to be used "subscribe --> stream" style.
      * When a new request command is received, a new stream of events is started and returned to the client.
+     *
      * @param request
      * @return
      */
@@ -113,16 +109,17 @@ public class RSocketController {
 
     /**
      * This @MessageMapping is intended to be used "stream <--> stream" style.
-     * The incoming stream contains the interval settings (in seconds) for the outgoing stream of messages. 
+     * The incoming stream contains the interval settings (in seconds) for the outgoing stream of messages.
+     *
      * @param settings
      * @return
      */
     @MessageMapping("channel")
     Flux<Message> channel(final Flux<Duration> settings) {
         return settings
-                    .doOnNext(setting -> log.info("\nFrequency setting is {} second(s).\n", setting.getSeconds()))
-                    .switchMap(setting -> Flux.interval(setting)
-                                                   .map(index -> new Message(SERVER, CHANNEL, index)))
-                                                   .log();
+                .doOnNext(setting -> log.info("\nFrequency setting is {} second(s).\n", setting.getSeconds()))
+                .switchMap(setting -> Flux.interval(setting)
+                        .map(index -> new Message(SERVER, CHANNEL, index)))
+                .log();
     }
 }
