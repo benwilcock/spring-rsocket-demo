@@ -12,7 +12,6 @@ import reactor.core.publisher.Flux;
 import javax.annotation.PreDestroy;
 import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,13 +118,13 @@ public class RSocketController {
     }
 
     @PreDestroy
-    void shutdown(){
+    void shutdown() {
         log.info("Detaching all clients...");
         CLIENTS.stream().forEach(requester -> requester.route("status")
-                    .data("DISCONNECTING")
-                    .retrieveMono(String.class)
-                    .doFinally(signal -> requester.rsocket().dispose())
-                    .subscribe(response -> log.info("Client response: {}", response))
+                .data("DISCONNECTING")
+                .retrieveMono(String.class)
+                .doFinally(signal -> requester.rsocket().dispose())
+                .subscribe(response -> log.info("Client response: {}", response))
         );
         log.info("Shutting down.");
     }

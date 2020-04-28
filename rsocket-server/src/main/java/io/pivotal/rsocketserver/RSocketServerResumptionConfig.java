@@ -15,6 +15,7 @@ public class RSocketServerResumptionConfig implements ServerRSocketFactoryProces
      * In this method we can configure the ServerRSocketFactory. In this case, we are
      * switching on the 'resumption' feature with 'resume()'. By default, the Resume Session will have a
      * duration of 120s, a timeout of 10s, and use the In Memory (volatile, non-persistent) session store.
+     *
      * @param factory
      * @return
      */
