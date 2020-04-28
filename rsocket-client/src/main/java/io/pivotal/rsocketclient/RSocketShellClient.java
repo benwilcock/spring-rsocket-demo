@@ -108,7 +108,7 @@ public class RSocketShellClient {
                 .subscribe(message -> log.info("Received: {} \n(Type 's' to stop.)", message));
     }
 
-    @ShellMethod("Stop streaming.")
+    @ShellMethod("Stops Streams or Channels.")
     public void s() {
         if (null != disposable) {
             log.info("Stopping the incoming stream.");

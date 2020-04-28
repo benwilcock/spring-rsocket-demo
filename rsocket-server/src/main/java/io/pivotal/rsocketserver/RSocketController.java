@@ -96,9 +96,7 @@ public class RSocketController {
                 // create a new indexed Flux emitting one element every second
                 .interval(Duration.ofSeconds(1))
                 // create a Flux of new Messages using the indexed Flux
-                .map(index -> new Message(SERVER, STREAM, index))
-                // use the Flux logger to output each flux event
-                .log();
+                .map(index -> new Message(SERVER, STREAM, index));
     }
 
     /**
@@ -110,16 +108,17 @@ public class RSocketController {
      */
     @MessageMapping("channel")
     Flux<Message> channel(final Flux<Duration> settings) {
+        log.info("Received channel request...");
         return settings
-                .doOnNext(setting -> log.info("\nFrequency setting is {} second(s).\n", setting.getSeconds()))
+                .doOnNext(setting -> log.info("Channel frequency setting is {} second(s).", setting.getSeconds()))
+                .doOnCancel(() -> log.warn("The client cancelled the channel."))
                 .switchMap(setting -> Flux.interval(setting)
-                        .map(index -> new Message(SERVER, CHANNEL, index)))
-                .log();
+                        .map(index -> new Message(SERVER, CHANNEL, index)));
     }
 
     @PreDestroy
     void shutdown() {
-        log.info("Detaching all clients...");
+        log.info("Detaching all remaining clients...");
         CLIENTS.stream().forEach(requester -> requester.route("status")
                 .data("DISCONNECTING")
                 .retrieveMono(String.class)
