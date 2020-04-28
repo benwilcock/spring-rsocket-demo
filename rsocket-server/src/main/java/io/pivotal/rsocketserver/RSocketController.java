@@ -9,14 +9,12 @@ import org.springframework.messaging.rsocket.annotation.ConnectMapping;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 
+import javax.annotation.PreDestroy;
 import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Controller
@@ -54,12 +52,9 @@ public class RSocketController {
 
         // Callback to client, confirming connection
         requester.route("status")
-                .data("Client " + client + " CONNECTED at " + LocalDateTime.now())
+                .data("CONNECTED")
                 .retrieveMono(String.class)
-                .subscribe(
-                        response -> log.info("Client {} has {}", client, response),
-                        error -> log.error("error: {}", error)
-                );
+                .subscribe();
     }
 
     /**
@@ -121,5 +116,17 @@ public class RSocketController {
                 .switchMap(setting -> Flux.interval(setting)
                         .map(index -> new Message(SERVER, CHANNEL, index)))
                 .log();
+    }
+
+    @PreDestroy
+    void shutdown(){
+        log.info("Detaching all clients...");
+        CLIENTS.stream().forEach(requester -> requester.route("status")
+                    .data("DISCONNECTING")
+                    .retrieveMono(String.class)
+                    .doFinally(signal -> requester.rsocket().dispose())
+                    .subscribe(response -> log.info("Client response: {}", response))
+        );
+        log.info("Shutting down.");
     }
 }

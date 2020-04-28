@@ -2,22 +2,23 @@ package io.pivotal.rsocketclient;
 
 
 import io.pivotal.rsocketclient.data.Message;
+import io.rsocket.SocketAcceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
-import org.springframework.util.MimeTypeUtils;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PreDestroy;
+import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.CancellationException;
 
 @Slf4j
 @ShellComponent
@@ -32,16 +33,30 @@ public class RSocketShellClient {
     private static Disposable disposable;
 
     @Autowired
-    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies rSocketStrategies) {
+    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies strategies) {
         String client = UUID.randomUUID().toString();
         log.info("Connecting using client ID: {}", client);
+
+        SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
+
         this.rsocketRequester = rsocketRequesterBuilder
-                .rsocketFactory(RSocketMessageHandler.clientResponder(rSocketStrategies, new ClientHandler()))
-                .dataMimeType(MimeTypeUtils.APPLICATION_JSON)
                 .setupRoute("connect")
                 .setupData(client)
+                .rsocketStrategies(strategies)
+                .rsocketConnector(connector -> connector.acceptor(responder))
                 .connectTcp("localhost", 7000)
                 .block();
+
+        this.rsocketRequester.rsocket()
+                .onClose()
+                .doFinally(consumer -> log.info("DISCONNECTED"))
+                .doOnError(error -> {
+                    // Warn when channels are closed
+                    if (error instanceof ClosedChannelException) {
+                        log.warn("Connection has CLOSED");
+                    }
+                })
+                .subscribe();
     }
 
     @ShellMethod("Send one request. One response will be printed.")
@@ -105,8 +120,18 @@ public class RSocketShellClient {
     @PreDestroy
     void shutdown() {
         if (!rsocketRequester.rsocket().isDisposed()) {
-            log.info("Disposing of the RSocket requester.");
             rsocketRequester.rsocket().dispose();
+            log.info("DISCONNECTED");
         }
+    }
+}
+
+@Slf4j
+class ClientHandler {
+
+    @MessageMapping("status")
+    public Mono<String> statusUpdate(String status) {
+        log.info("Connection status: {}", status);
+        return Mono.just(status);
     }
 }
