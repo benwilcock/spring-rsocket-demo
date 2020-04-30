@@ -29,7 +29,6 @@ public class RSocketShellClient {
     private static final String REQUEST = "Request";
     private static final String FIRE_AND_FORGET = "Fire-And-Forget";
     private static final String STREAM = "Stream";
-    private static final String CHANNEL = "Channel";
     private static Disposable disposable;
 
     @Autowired
@@ -40,7 +39,7 @@ public class RSocketShellClient {
         SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
 
         this.rsocketRequester = rsocketRequesterBuilder
-                .setupRoute("connect")
+                .setupRoute("shell-client")
                 .setupData(client)
                 .rsocketStrategies(strategies)
                 .rsocketConnector(connector -> connector.acceptor(responder))
@@ -49,14 +48,14 @@ public class RSocketShellClient {
 
         this.rsocketRequester.rsocket()
                 .onClose()
-                .doFinally(consumer -> log.info("DISCONNECTED"))
-                .doOnError(error -> {
-                    // Warn when channels are closed
-                    if (error instanceof ClosedChannelException) {
-                        log.warn("Connection has CLOSED");
-                    }
-                })
+                .doOnError(error -> log.warn("Connection CLOSED"))
+                .doFinally(consumer -> log.info("Client DISCONNECTED"))
                 .subscribe();
+    }
+
+    @PreDestroy
+    void shutdown() {
+        rsocketRequester.rsocket().dispose();
     }
 
     @ShellMethod("Send one request. One response will be printed.")
@@ -117,21 +116,15 @@ public class RSocketShellClient {
         }
     }
 
-    @PreDestroy
-    void shutdown() {
-        if (!rsocketRequester.rsocket().isDisposed()) {
-            rsocketRequester.rsocket().dispose();
-            log.info("DISCONNECTED");
-        }
-    }
+
 }
 
 @Slf4j
 class ClientHandler {
 
-    @MessageMapping("status")
+    @MessageMapping("client-status")
     public Mono<String> statusUpdate(String status) {
-        log.info("Connection status: {}", status);
-        return Mono.just(status);
+        log.info("Connection {}", status);
+        return Mono.just(System.getProperty("java.vendor") + " v" + System.getProperty("java.version"));
     }
 }

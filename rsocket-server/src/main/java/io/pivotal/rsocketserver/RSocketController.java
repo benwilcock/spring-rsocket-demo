@@ -26,33 +26,41 @@ public class RSocketController {
 
     private final List<RSocketRequester> CLIENTS = new ArrayList<>();
 
-    @ConnectMapping("connect")
+    @PreDestroy
+    void shutdown() {
+        log.info("Detaching all remaining clients...");
+        CLIENTS.stream().forEach(requester -> requester.rsocket().dispose());
+        log.info("Shutting down.");
+    }
+
+    @ConnectMapping("shell-client")
     void handle(RSocketRequester requester, @Payload String client) {
 
         requester.rsocket()
                 .onClose()
                 .doFirst(() -> {
                     // Add all new clients to a client list
-                    log.info("Adding client: {}", client);
+                    log.info("Client: {} added.", client);
                     CLIENTS.add(requester);
                 })
                 .doOnError(error -> {
                     // Warn when channels are closed by clients
                     if (error instanceof ClosedChannelException) {
-                        log.warn("Channel to client {} has CLOSED", client);
+                        log.warn("Channel to client {} CLOSED", client);
                     }
                 })
                 .doFinally(consumer -> {
                     // Remove disconnected clients from the client list
                     CLIENTS.remove(requester);
-                    log.info("Client {} has DISCONNECTED", client);
+                    log.info("Client {} DISCONNECTED", client);
                 })
                 .subscribe();
 
         // Callback to client, confirming connection
-        requester.route("status")
-                .data("CONNECTED")
+        requester.route("client-status")
+                .data("OPEN")
                 .retrieveMono(String.class)
+                .doOnNext(s -> log.info("Client: {} runs {}.",client,s))
                 .subscribe();
     }
 
@@ -114,17 +122,5 @@ public class RSocketController {
                 .doOnCancel(() -> log.warn("The client cancelled the channel."))
                 .switchMap(setting -> Flux.interval(setting)
                         .map(index -> new Message(SERVER, CHANNEL, index)));
-    }
-
-    @PreDestroy
-    void shutdown() {
-        log.info("Detaching all remaining clients...");
-        CLIENTS.stream().forEach(requester -> requester.route("status")
-                .data("DISCONNECTING")
-                .retrieveMono(String.class)
-                .doFinally(signal -> requester.rsocket().dispose())
-                .subscribe(response -> log.info("Client response: {}", response))
-        );
-        log.info("Shutting down.");
     }
 }
