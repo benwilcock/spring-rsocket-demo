@@ -59,8 +59,8 @@ public class RSocketController {
         // Callback to client, confirming connection
         requester.route("client-status")
                 .data("OPEN")
-                .retrieveMono(String.class)
-                .doOnNext(s -> log.info("Client: {} runs {}.",client,s))
+                .retrieveFlux(String.class)
+                .doOnNext(s -> log.info("Client: {} Free Memory: {}.",client,s))
                 .subscribe();
     }
 
