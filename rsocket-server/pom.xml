@@ -18,7 +18,6 @@
 
   <properties>
     <java.version>1.8</java.version>
-<!--    <rsocket.version>1.0.0-RC7</rsocket.version>-->
   </properties>
 
   <dependencies>

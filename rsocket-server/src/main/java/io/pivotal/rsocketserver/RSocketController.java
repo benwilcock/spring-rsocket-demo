@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 
 import javax.annotation.PreDestroy;
-import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,20 +33,18 @@ public class RSocketController {
     }
 
     @ConnectMapping("shell-client")
-    void handle(RSocketRequester requester, @Payload String client) {
+    void connectShellClientAndAskForTelemetry(RSocketRequester requester, @Payload String client) {
 
         requester.rsocket()
                 .onClose()
                 .doFirst(() -> {
                     // Add all new clients to a client list
-                    log.info("Client: {} added.", client);
+                    log.info("Client: {} CONNECTED.", client);
                     CLIENTS.add(requester);
                 })
                 .doOnError(error -> {
                     // Warn when channels are closed by clients
-                    if (error instanceof ClosedChannelException) {
-                        log.warn("Channel to client {} CLOSED", client);
-                    }
+                    log.warn("Channel to client {} CLOSED", client);
                 })
                 .doFinally(consumer -> {
                     // Remove disconnected clients from the client list
