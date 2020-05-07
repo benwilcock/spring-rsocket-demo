@@ -18,10 +18,10 @@ import java.util.List;
 @Controller
 public class RSocketController {
 
-    private static final String SERVER = "Server";
-    private static final String RESPONSE = "Response";
-    private static final String STREAM = "Stream";
-    private static final String CHANNEL = "Channel";
+     static final String SERVER = "Server";
+     static final String RESPONSE = "Response";
+     static final String STREAM = "Stream";
+     static final String CHANNEL = "Channel";
 
     private final List<RSocketRequester> CLIENTS = new ArrayList<>();
 
