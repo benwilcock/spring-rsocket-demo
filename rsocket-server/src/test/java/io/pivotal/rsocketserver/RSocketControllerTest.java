@@ -59,7 +59,7 @@ public class RSocketControllerTest {
     }
 
     @Test
-    public void voidReturnValue() {
+    public void requestGetsResponse() {
         Mono<Message> result = requester
                 .route("request-response")
                 .data(new Message("TEST","REQUEST"))
@@ -76,7 +76,7 @@ public class RSocketControllerTest {
     }
 
     @Test
-    public void noMatchingRoute() {
+    public void noMatchingRouteGetsException() {
         Mono<String> result = requester.route("invalid").data("anything").retrieveMono(String.class);
         StepVerifier.create(result)
                 .expectErrorMessage("No handler for destination 'invalid'")
