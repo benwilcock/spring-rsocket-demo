@@ -9,6 +9,7 @@ This code accompanies my RSocket blog series over on [spring.io][me].
 5. [RSocket Channel With Spring Boot][five]
 6. TBD
 
+
 For latest updates, news, and interestings, follow me on [Twitter][twitter]
 
 [one]: https://spring.io/blog/2020/03/02/getting-started-with-rsocket-spring-boot-server
@@ -18,3 +19,5 @@ For latest updates, news, and interestings, follow me on [Twitter][twitter]
 [five]: https://spring.io/blog/2020/04/06/getting-started-with-rsocket-spring-boot-channels
 [me]: https://spring.io/team/benwilcock
 [twitter]: https://twitter.com/benbravo73
+
+
