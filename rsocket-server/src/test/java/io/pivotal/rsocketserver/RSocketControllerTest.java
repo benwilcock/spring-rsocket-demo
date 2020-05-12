@@ -116,6 +116,35 @@ public class RSocketControllerTest {
     }
 
     @Test
+    public void channelWhereStreamGetsStream(){
+
+        Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
+        Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(2));
+
+        Flux<Duration> settings = Flux.concat(setting1, setting2);
+
+        Flux<Message> result = requester
+                .route("channel")
+                .data(settings)
+                .retrieveFlux(Message.class);
+
+        StepVerifier
+                .create(result)
+                .consumeNextWith(message -> {
+                    assertThat(message.getOrigin()).isEqualTo(RSocketController.SERVER);
+                    assertThat(message.getInteraction()).isEqualTo(RSocketController.CHANNEL);
+                    assertThat(message.getIndex()).isEqualTo(0L);
+                })
+                .consumeNextWith(message -> {
+                    assertThat(message.getOrigin()).isEqualTo(RSocketController.SERVER);
+                    assertThat(message.getInteraction()).isEqualTo(RSocketController.CHANNEL);
+                    assertThat(message.getIndex()).isEqualTo(0L);
+                })
+                .thenCancel()
+                .verify();
+    }
+
+    @Test
     public void noMatchingRouteGetsException() {
         Mono<String> result = requester.route("invalid").data("anything").retrieveMono(String.class);
         StepVerifier.create(result)
