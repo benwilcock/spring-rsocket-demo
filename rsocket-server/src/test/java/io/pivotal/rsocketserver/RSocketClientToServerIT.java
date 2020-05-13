@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RSocketControllerTest {
+public class RSocketClientToServerIT {
 
     private static AnnotationConfigApplicationContext context;
 
@@ -50,13 +50,13 @@ public class RSocketControllerTest {
 
         server = RSocketServer.create(responder)
                 .payloadDecoder(PayloadDecoder.ZERO_COPY)
-                .bind(TcpServerTransport.create("localhost", 7001))
+                .bind(TcpServerTransport.create("localhost", 0))
                 .block();
 
         requester = RSocketRequester.builder()
                 .metadataMimeType(metadataMimeType)
                 .rsocketStrategies(context.getBean(RSocketStrategies.class))
-                .connectTcp("localhost", 7001)
+                .connectTcp("localhost", server.address().getPort())
                 .block();
     }
 

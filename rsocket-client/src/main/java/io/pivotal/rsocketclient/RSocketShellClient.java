@@ -125,7 +125,6 @@ class ClientHandler {
     @MessageMapping("client-status")
     public Flux<String> statusUpdate(String status) {
         log.info("Connection {}", status);
-        //return Mono.just(System.getProperty("java.vendor") + " v" + System.getProperty("java.version"));
         return Flux.interval(Duration.ofSeconds(5)).map(index -> String.valueOf(Runtime.getRuntime().freeMemory()));
     }
 }
