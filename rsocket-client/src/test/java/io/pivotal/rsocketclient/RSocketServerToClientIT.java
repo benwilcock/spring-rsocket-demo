@@ -9,10 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
@@ -33,21 +33,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class RSocketServerToClientIT {
 
-    private static String clientId = UUID.randomUUID().toString();
+    private static String clientId;
 
     private static AnnotationConfigApplicationContext context;
 
     private static CloseableChannel server;
 
+    private static RSocketStrategies strategies;
+
+    private static ServerController controller;
+
+    private static RSocketMessageHandler messageHandler;
+
 
     @BeforeAll
     @SuppressWarnings("ConstantConditions")
     public static void setupOnce() {
+        // create a client identity spring for this test suite
+        clientId = UUID.randomUUID().toString();
 
+        // create a Spring context for this test suite and obtain some beans
         context = new AnnotationConfigApplicationContext(ServerConfig.class);
-        RSocketMessageHandler messageHandler = context.getBean(RSocketMessageHandler.class);
-        SocketAcceptor responder = messageHandler.responder();
+        strategies = context.getBean(RSocketStrategies.class);
+        controller = context.getBean(ServerController.class);
+        messageHandler = context.getBean(RSocketMessageHandler.class);
 
+        // Create an RSocket server for use in testing
+        SocketAcceptor responder = messageHandler.responder();
         server = RSocketServer.create(responder)
                 .payloadDecoder(PayloadDecoder.ZERO_COPY)
                 .bind(TcpServerTransport.create("localhost", 0))
@@ -59,19 +71,29 @@ public class RSocketServerToClientIT {
         server.dispose();
     }
 
+    /**
+     * Test that our client-side 'ClientHandler' class responds to server sent messages correctly.
+     */
     @Test
     public void testServerCallsClientAfterConnection() {
         connectAndRunTest("shell-client");
     }
 
+    /**
+     * This private method is used to establish a connection to our fake RSocket server.
+     * It also controls the state of our test controller. This method is reusable by many tests.
+     * @param connectionRoute
+     */
     private void connectAndRunTest(String connectionRoute) {
-
-        context.getBean(ServerController.class).reset();
-        RSocketStrategies strategies = context.getBean(RSocketStrategies.class);
-        SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
 
         RSocketRequester requester = null;
         try {
+            controller.reset();
+
+            // Add our ClientHandler as a responder
+            SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
+
+            // Create an RSocket requester that includes our responder
             requester = RSocketRequester.builder()
                     .setupRoute(connectionRoute)
                     .setupData(clientId)
@@ -80,7 +102,8 @@ public class RSocketServerToClientIT {
                     .connectTcp("localhost", server.address().getPort())
                     .block();
 
-            context.getBean(ServerController.class).await(Duration.ofSeconds(10));
+            // Give the test time to run, wait for the server's call.
+            controller.await(Duration.ofSeconds(10));
         } finally {
             if (requester != null) {
                 requester.rsocket().dispose();
@@ -88,52 +111,80 @@ public class RSocketServerToClientIT {
         }
     }
 
+    /**
+     * Fake Spring @Controller class which is a stand-in 'test rig' for our real server.
+     * It contains a custom @ConnectMapping that tests if our ClientHandler is responding to
+     * server-side calls for telemetry data.
+     */
     @Controller
-//    @SuppressWarnings({"unused", "NullableProblems"})
     static class ServerController {
 
-        // Must be initialized by @Test method...
+        // volatile guarantees visibility across threads.
+        // MonoProcessor implements stateful semantics for a mono
         volatile MonoProcessor<Object> result;
 
-
+        // Reset the stateful Mono
         public void reset() {
             this.result = MonoProcessor.create();
         }
 
+        // Allow some time for the test to execute
         public void await(Duration duration) {
             this.result.block(duration);
         }
 
+        /**
+         * Test method. When a client connects to this server, ask the client for its telemetry data
+         * and test that the telemetry received is within a good range.
+         * @param requester
+         * @param client
+         */
         @ConnectMapping("shell-client")
-        void connectShellClientAndAskForTelemetry(RSocketRequester requester, @Payload String client) {
+        void verifyConnectShellClientAndAskForTelemetry(RSocketRequester requester, @Payload String client) {
 
-            log.info("************** CONNECTION - Client ID: {}", client);
+            // test the client's message payload contains the expected client ID
             assertThat(client).isNotNull();
             assertThat(client).isNotEmpty();
             assertThat(client).isEqualTo(clientId);
+            log.info("************** CONNECTION - Client ID: {}", client);
 
             runTest(() -> {
                 Flux<String> flux = requester
-                        .route("client-status")
-                        .data("OPEN")
-                        .retrieveFlux(String.class);
+                        .route("client-status") // Test the 'client-status' message handler mapping
+                        .data("OPEN") // confirm to the client th connection is open
+                        .retrieveFlux(String.class); // ask the client for its telemetry
 
                 StepVerifier.create(flux)
-                        .consumeNextWith(s -> assertThat(Integer.valueOf(s)).isGreaterThan(0))
+                        .consumeNextWith(s -> {
+                            // assert the memory reading is in the 'good' range
+                            assertThat(s).isNotNull();
+                            assertThat(s).isNotEmpty();
+                            assertThat(Integer.valueOf(s)).isPositive();
+                            assertThat(Integer.valueOf(s)).isGreaterThan(0);
+                        })
                         .thenCancel()
                         .verify(Duration.ofSeconds(10));
             });
         }
 
+        /**
+         * Run the provided test, collecting the results into a stateful Mono.
+         * @param test
+         */
         private void runTest(Runnable test) {
+            // Run the test provided
             Mono.fromRunnable(test)
-                    .doOnError(ex -> result.onError(ex))
-                    .doOnSuccess(o -> result.onComplete())
+                    .doOnError(ex -> result.onError(ex)) // test result was an error
+                    .doOnSuccess(o -> result.onComplete()) // test result was success
                     .subscribeOn(Schedulers.elastic()) // StepVerifier will block
                     .subscribe();
         }
     }
 
+    /**
+     * This test-specific configuration allows Spring to help configure our test environment.
+     * These beans will be placed into the Spring context and can be accessed when required.
+     */
     @TestConfiguration
     static class ServerConfig {
 
