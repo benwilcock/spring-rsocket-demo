@@ -30,24 +30,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RSocketClientToServerIT {
 
-    private static AnnotationConfigApplicationContext context;
-
     private static CloseableChannel server;
 
     private static RSocketRequester requester;
 
     @BeforeAll
     public static void setupOnce() {
-        context = new AnnotationConfigApplicationContext(ServerConfig.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ServerConfig.class);
         RSocketMessageHandler messageHandler = context.getBean(RSocketMessageHandler.class);
         RSocketStrategies strategies = context.getBean(RSocketStrategies.class);
-        SocketAcceptor responder = messageHandler.responder();
 
+        // Spring will bind your custom RSocketController bean to this RSocketServer
+        SocketAcceptor responder = messageHandler.responder();
         server = RSocketServer.create(responder)
                 .payloadDecoder(PayloadDecoder.ZERO_COPY)
                 .bind(TcpServerTransport.create("localhost", 0))
                 .block();
 
+        // Create an RSocket requester bound to the server above for use in this test suite
         MimeType metadataMimeType = MimeTypeUtils.parseMimeType(
                 WellKnownMimeType.MESSAGE_RSOCKET_ROUTING.getString());
         requester = RSocketRequester.builder()
@@ -58,12 +58,14 @@ public class RSocketClientToServerIT {
     }
 
     @Test
-    public void requestGetsResponse() {
+    public void testRequestGetsResponse() {
+        // Send a request message
         Mono<Message> result = requester
                 .route("request-response")
-                .data(new Message("TEST","Request"))
+                .data(new Message("TEST", "Request"))
                 .retrieveMono(Message.class);
 
+        // Verify that the response message contains the expected data
         StepVerifier
                 .create(result)
                 .consumeNextWith(message -> {
@@ -75,24 +77,28 @@ public class RSocketClientToServerIT {
     }
 
     @Test
-    public void fireAndForget() {
+    public void TestFireAndForget() {
+        // Send a fire-and-forget message
         Mono<Message> result = requester
                 .route("fire-and-forget")
-                .data(new Message("TEST","Fire-And-Forget"))
+                .data(new Message("TEST", "Fire-And-Forget"))
                 .retrieveMono(Message.class);
 
+        // Assert that the result is a completed Mono.
         StepVerifier
                 .create(result)
                 .verifyComplete();
     }
 
     @Test
-    public void requestGetsStream() {
+    public void testRequestGetsStream() {
+        // Send a request message
         Flux<Message> result = requester
                 .route("stream")
-                .data(new Message("TEST","Stream"))
+                .data(new Message("TEST", "Stream"))
                 .retrieveFlux(Message.class);
 
+        // Verify that the response messages contain the expected data
         StepVerifier
                 .create(result)
                 .consumeNextWith(message -> {
@@ -111,16 +117,18 @@ public class RSocketClientToServerIT {
     }
 
     @Test
-    public void channelWhereStreamGetsStream(){
+    public void testStreamGetsStream() {
         Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
         Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(2));
         Flux<Duration> settings = Flux.concat(setting1, setting2);
 
+        // Send a stream of request messages
         Flux<Message> result = requester
                 .route("channel")
                 .data(settings)
                 .retrieveFlux(Message.class);
 
+        // Verify that the response messages contain the expected data
         StepVerifier
                 .create(result)
                 .consumeNextWith(message -> {
@@ -138,12 +146,14 @@ public class RSocketClientToServerIT {
     }
 
     @Test
-    public void noMatchingRouteGetsException() {
+    public void testNoMatchingRouteGetsException() {
+        // Send a request with bad route and data
         Mono<String> result = requester
                 .route("invalid")
                 .data("anything")
                 .retrieveMono(String.class);
 
+        // Verify that an error is generated
         StepVerifier.create(result)
                 .expectErrorMessage("No handler for destination 'invalid'")
                 .verify(Duration.ofSeconds(5));
@@ -155,6 +165,10 @@ public class RSocketClientToServerIT {
         server.dispose();
     }
 
+    /**
+     * This test-specific configuration allows Spring to help configure our test environment.
+     * These beans will be placed into the Spring context and can be accessed when required.
+     */
     @TestConfiguration
     static class ServerConfig {
 

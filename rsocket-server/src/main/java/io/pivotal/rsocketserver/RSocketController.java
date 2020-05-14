@@ -18,10 +18,10 @@ import java.util.List;
 @Controller
 public class RSocketController {
 
-     static final String SERVER = "Server";
-     static final String RESPONSE = "Response";
-     static final String STREAM = "Stream";
-     static final String CHANNEL = "Channel";
+    static final String SERVER = "Server";
+    static final String RESPONSE = "Response";
+    static final String STREAM = "Stream";
+    static final String CHANNEL = "Channel";
 
     private final List<RSocketRequester> CLIENTS = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class RSocketController {
         requester.route("client-status")
                 .data("OPEN")
                 .retrieveFlux(String.class)
-                .doOnNext(s -> log.info("Client: {} Free Memory: {}.",client,s))
+                .doOnNext(s -> log.info("Client: {} Free Memory: {}.", client, s))
                 .subscribe();
     }
 

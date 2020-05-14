@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -39,28 +38,18 @@ public class RSocketServerToClientIT {
 
     private static CloseableChannel server;
 
-    private static RSocketStrategies strategies;
-
-    private static ServerController controller;
-
-    private static RSocketMessageHandler messageHandler;
-
 
     @BeforeAll
-    @SuppressWarnings("ConstantConditions")
     public static void setupOnce() {
         // create a client identity spring for this test suite
         clientId = UUID.randomUUID().toString();
 
         // create a Spring context for this test suite and obtain some beans
         context = new AnnotationConfigApplicationContext(ServerConfig.class);
-        strategies = context.getBean(RSocketStrategies.class);
-        controller = context.getBean(ServerController.class);
-        messageHandler = context.getBean(RSocketMessageHandler.class);
 
         // Create an RSocket server for use in testing
-        SocketAcceptor responder = messageHandler.responder();
-        server = RSocketServer.create(responder)
+        RSocketMessageHandler messageHandler = context.getBean(RSocketMessageHandler.class);
+        server = RSocketServer.create(messageHandler.responder())
                 .payloadDecoder(PayloadDecoder.ZERO_COPY)
                 .bind(TcpServerTransport.create("localhost", 0))
                 .block();
@@ -82,11 +71,15 @@ public class RSocketServerToClientIT {
     /**
      * This private method is used to establish a connection to our fake RSocket server.
      * It also controls the state of our test controller. This method is reusable by many tests.
+     *
      * @param connectionRoute
      */
     private void connectAndRunTest(String connectionRoute) {
 
+        ServerController controller = context.getBean(ServerController.class);
+        RSocketStrategies strategies = context.getBean(RSocketStrategies.class);
         RSocketRequester requester = null;
+
         try {
             controller.reset();
 
@@ -136,6 +129,7 @@ public class RSocketServerToClientIT {
         /**
          * Test method. When a client connects to this server, ask the client for its telemetry data
          * and test that the telemetry received is within a good range.
+         *
          * @param requester
          * @param client
          */
@@ -169,6 +163,7 @@ public class RSocketServerToClientIT {
 
         /**
          * Run the provided test, collecting the results into a stateful Mono.
+         *
          * @param test
          */
         private void runTest(Runnable test) {
