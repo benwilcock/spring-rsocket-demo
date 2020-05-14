@@ -134,7 +134,7 @@ public class RSocketServerToClientIT {
         }
     }
 
-    @Configuration
+    @TestConfiguration
     static class ServerConfig {
 
         @Bean
