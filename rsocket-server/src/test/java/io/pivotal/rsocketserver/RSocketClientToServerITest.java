@@ -91,8 +91,8 @@ public class RSocketClientToServerITest {
 
     @Test
     public void testStreamGetsStream() {
-        Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(4)).delayElement(Duration.ofSeconds(0));
-        Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(1)).delayElement(Duration.ofSeconds(5));
+        Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(6)).delayElement(Duration.ofSeconds(0));
+        Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(6)).delayElement(Duration.ofSeconds(9));
         Flux<Duration> settings = Flux.concat(setting1, setting2);
 
         // Send a stream of request messages
