@@ -76,7 +76,7 @@
           </execution>
         </executions>
         <configuration>
-          <includes>**/*IT.java</includes>
+          <includes>**/*ITest.java</includes>
         </configuration>
       </plugin>
     </plugins>

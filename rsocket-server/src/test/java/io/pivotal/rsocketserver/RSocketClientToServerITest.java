@@ -1,25 +1,14 @@
 package io.pivotal.rsocketserver;
 
 import io.pivotal.rsocketserver.data.Message;
-import io.rsocket.SocketAcceptor;
-import io.rsocket.core.RSocketServer;
-import io.rsocket.frame.decoder.PayloadDecoder;
-import io.rsocket.metadata.WellKnownMimeType;
-import io.rsocket.transport.netty.server.CloseableChannel;
-import io.rsocket.transport.netty.server.TcpServerTransport;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.codec.cbor.Jackson2CborDecoder;
-import org.springframework.http.codec.cbor.Jackson2CborEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
-import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
-import org.springframework.util.MimeType;
-import org.springframework.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -28,32 +17,16 @@ import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RSocketClientToServerIT {
-
-    private static CloseableChannel server;
+@SpringBootTest
+public class RSocketClientToServerITest {
 
     private static RSocketRequester requester;
 
     @BeforeAll
-    public static void setupOnce() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ServerConfig.class);
-        RSocketMessageHandler messageHandler = context.getBean(RSocketMessageHandler.class);
-        RSocketStrategies strategies = context.getBean(RSocketStrategies.class);
-
-        // Spring will bind your custom RSocketController bean to this RSocketServer
-        SocketAcceptor responder = messageHandler.responder();
-        server = RSocketServer.create(responder)
-                .payloadDecoder(PayloadDecoder.ZERO_COPY)
-                .bind(TcpServerTransport.create("localhost", 0))
-                .block();
-
-        // Create an RSocket requester bound to the server above for use in this test suite
-        MimeType metadataMimeType = MimeTypeUtils.parseMimeType(
-                WellKnownMimeType.MESSAGE_RSOCKET_ROUTING.getString());
+    public static void setupOnce(@Autowired RSocketStrategies strategies, @Value("${spring.rsocket.server.port}") Integer port) {
         requester = RSocketRequester.builder()
-                .metadataMimeType(metadataMimeType)
                 .rsocketStrategies(strategies)
-                .connectTcp("localhost", server.address().getPort())
+                .connectTcp("localhost", port)
                 .block();
     }
 
@@ -118,8 +91,8 @@ public class RSocketClientToServerIT {
 
     @Test
     public void testStreamGetsStream() {
-        Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
-        Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(2));
+        Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(4)).delayElement(Duration.ofSeconds(0));
+        Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(1)).delayElement(Duration.ofSeconds(5));
         Flux<Duration> settings = Flux.concat(setting1, setting2);
 
         // Send a stream of request messages
@@ -162,31 +135,5 @@ public class RSocketClientToServerIT {
     @AfterAll
     public static void tearDownOnce() {
         requester.rsocket().dispose();
-        server.dispose();
-    }
-
-    /**
-     * This test-specific configuration allows Spring to help configure our test environment.
-     * These beans will be placed into the Spring context and can be accessed when required.
-     */
-    @TestConfiguration
-    static class ServerConfig {
-
-        @Bean
-        public RSocketController controller() {
-            return new RSocketController();
-        }
-
-        @Bean
-        public RSocketMessageHandler messageHandler(RSocketStrategies strategies) {
-            RSocketMessageHandler handler = new RSocketMessageHandler();
-            handler.setRSocketStrategies(strategies);
-            return handler;
-        }
-
-        @Bean
-        public RSocketStrategies rsocketStrategies() {
-            return RSocketStrategies.builder().encoder(new Jackson2CborEncoder()).decoder(new Jackson2CborDecoder()).build();
-        }
     }
 }
