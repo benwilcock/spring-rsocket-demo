@@ -59,7 +59,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludes>
-            <exclude>**/*IT.java</exclude>
+            <exclude>**/*ITest.java</exclude>
           </excludes>
         </configuration>
       </plugin>

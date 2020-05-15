@@ -30,7 +30,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class RSocketServerToClientIT {
+public class RSocketServerToClientITest {
 
     private static String clientId;
 
