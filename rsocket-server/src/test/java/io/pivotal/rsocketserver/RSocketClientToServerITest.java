@@ -23,9 +23,8 @@ public class RSocketClientToServerITest {
     private static RSocketRequester requester;
 
     @BeforeAll
-    public static void setupOnce(@Autowired RSocketStrategies strategies, @Value("${spring.rsocket.server.port}") Integer port) {
-        requester = RSocketRequester.builder()
-                .rsocketStrategies(strategies)
+    public static void setupOnce(@Autowired RSocketRequester.Builder builder, @Value("${spring.rsocket.server.port}") Integer port) {
+        requester = builder
                 .connectTcp("localhost", port)
                 .block();
     }
