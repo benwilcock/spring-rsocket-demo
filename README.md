@@ -7,8 +7,9 @@ This code accompanies my RSocket blog series over on [spring.io][me].
 3. [RSocket Fire-And-Forget With Spring Boot][three]
 4. [RSocket Request-Stream With Spring Boot][four]
 5. [RSocket Channel With Spring Boot][five]
-6. TBD
-
+6. [RSocket Servers Calling Clients][six]
+7. Testing RSocket Responders
+8. TBD
 
 For latest updates, news, and interestings, follow me on [Twitter][twitter]
 
@@ -17,6 +18,8 @@ For latest updates, news, and interestings, follow me on [Twitter][twitter]
 [three]: https://spring.io/blog/2020/03/16/getting-started-with-rsocket-spring-boot-fire-and-forget
 [four]:https://spring.io/blog/2020/03/23/getting-started-with-rsocket-spring-boot-request-stream
 [five]: https://spring.io/blog/2020/04/06/getting-started-with-rsocket-spring-boot-channels
+[six]: https://spring.io/blog/2020/05/12/getting-started-with-rsocket-servers-calling-clients
+[seven]: https://spring.io/blog
 [me]: https://spring.io/team/benwilcock
 [twitter]: https://twitter.com/benbravo73
 
