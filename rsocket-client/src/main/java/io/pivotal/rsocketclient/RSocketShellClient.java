@@ -3,14 +3,20 @@ package io.pivotal.rsocketclient;
 
 import io.pivotal.rsocketclient.data.Message;
 import io.rsocket.SocketAcceptor;
+import io.rsocket.metadata.WellKnownMimeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
+import org.springframework.security.rsocket.metadata.SimpleAuthenticationEncoder;
+import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,24 +29,45 @@ import java.util.UUID;
 @ShellComponent
 public class RSocketShellClient {
 
-    private final RSocketRequester rsocketRequester;
     private static final String CLIENT = "Client";
     private static final String REQUEST = "Request";
     private static final String FIRE_AND_FORGET = "Fire-And-Forget";
     private static final String STREAM = "Stream";
     private static Disposable disposable;
+    private static final String CLIENT_ID = UUID.randomUUID().toString();
+    private static final MimeType SIMPLE_AUTH = MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
+
+    private RSocketRequester rsocketRequester;
+    private RSocketRequester.Builder rsocketRequesterBuilder;
+    private RSocketStrategies rsocketStrategies;
+    private UsernamePasswordMetadata user;
 
     @Autowired
-    public RSocketShellClient(RSocketRequester.Builder rsocketRequesterBuilder, RSocketStrategies strategies) {
-        String client = UUID.randomUUID().toString();
-        log.info("Connecting using client ID: {}", client);
+    public RSocketShellClient(RSocketRequester.Builder builder, @Qualifier("rSocketStrategies") RSocketStrategies strategies) {
 
-        SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
+        this.rsocketRequesterBuilder = builder;
+        this.rsocketStrategies = strategies;
+    }
+
+    @PreDestroy
+    void shutdown() {
+        if(null != rsocketRequester) {
+            rsocketRequester.rsocket().dispose();
+        }
+    }
+
+    @ShellMethod("Login with your username and password.")
+    public void login(String username, String password){
+        log.info("Connecting using client ID: {}, Username: {}", CLIENT_ID, username);
+        SocketAcceptor responder = RSocketMessageHandler.responder(rsocketStrategies, new ClientHandler());
+        this.user = new UsernamePasswordMetadata(username, password);
 
         this.rsocketRequester = rsocketRequesterBuilder
                 .setupRoute("shell-client")
-                .setupData(client)
-                .rsocketStrategies(strategies)
+                .setupData(CLIENT_ID)
+                .setupMetadata(this.user, SIMPLE_AUTH)
+                .rsocketStrategies(builder ->
+                        builder.encoder(new SimpleAuthenticationEncoder()))
                 .rsocketConnector(connector -> connector.acceptor(responder))
                 .connectTcp("localhost", 7000)
                 .block();
@@ -52,24 +79,23 @@ public class RSocketShellClient {
                 .subscribe();
     }
 
-    @PreDestroy
-    void shutdown() {
-        rsocketRequester.rsocket().dispose();
-    }
-
     @ShellMethod("Send one request. One response will be printed.")
     public void requestResponse() throws InterruptedException {
-        log.info("\nSending one request. Waiting for one response...");
-        Message message = this.rsocketRequester
-                .route("request-response")
-                .data(new Message(CLIENT, REQUEST))
-                .retrieveMono(Message.class)
-                .block();
-        log.info("\nResponse was: {}", message);
+
+        if(userIsLoggedIn()){
+            log.info("\nSending one request. Waiting for one response...");
+            Message message = this.rsocketRequester
+                    .route("request-response")
+                    .data(new Message(CLIENT, REQUEST))
+                    .retrieveMono(Message.class)
+                    .block();
+            log.info("\nResponse was: {}", message);
+        }
     }
 
     @ShellMethod("Send one request. No response will be returned.")
     public void fireAndForget() throws InterruptedException {
+        userIsLoggedIn();
         log.info("\nFire-And-Forget. Sending one request. Expect no response (check server console log)...");
         this.rsocketRequester
                 .route("fire-and-forget")
@@ -80,6 +106,7 @@ public class RSocketShellClient {
 
     @ShellMethod("Send one request. Many responses (stream) will be printed.")
     public void stream() {
+        userIsLoggedIn();
         log.info("\n\n**** Request-Stream\n**** Send one request.\n**** Log responses.\n**** Type 's' to stop.");
         disposable = this.rsocketRequester
                 .route("stream")
@@ -90,6 +117,7 @@ public class RSocketShellClient {
 
     @ShellMethod("Stream some settings to the server. Stream of responses will be printed.")
     public void channel() {
+        userIsLoggedIn();
         log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Type 's' to stop.\n\n");
 
         Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
@@ -115,7 +143,13 @@ public class RSocketShellClient {
         }
     }
 
-
+    private boolean userIsLoggedIn(){
+        if(null == this.rsocketRequester){
+            log.info("No connection. Did you login?");
+            return false;
+        }
+        return true;
+    }
 }
 
 @Slf4j
