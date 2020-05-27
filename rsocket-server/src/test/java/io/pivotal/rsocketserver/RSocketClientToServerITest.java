@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.rsocket.context.LocalRSocketServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.rsocket.RSocketRequester;
-import org.springframework.messaging.rsocket.RSocketStrategies;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -49,7 +48,7 @@ public class RSocketClientToServerITest {
     }
 
     @Test
-    public void TestFireAndForget() {
+    public void testFireAndForget() {
         // Send a fire-and-forget message
         Mono<Message> result = requester
                 .route("fire-and-forget")
