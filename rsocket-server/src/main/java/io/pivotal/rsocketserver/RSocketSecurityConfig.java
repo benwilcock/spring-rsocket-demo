@@ -11,13 +11,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 
-@Profile("secured")
 @Configuration
 @EnableRSocketSecurity
 public class RSocketSecurityConfig {
 
     @Bean
-    public MapReactiveUserDetailsService userDetailsService() {
+    @Profile("secured")
+    public MapReactiveUserDetailsService securedUserDetailsService() {
         //This is NOT intended for production use (it is intended for getting started experience only)
         UserDetails user = User.withDefaultPasswordEncoder()
                 .username("user")
@@ -29,7 +29,8 @@ public class RSocketSecurityConfig {
     }
 
     @Bean
-    public PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
+    @Profile("secured")
+    public PayloadSocketAcceptorInterceptor securedRsocketInterceptor(RSocketSecurity rsocket) {
         rsocket.authorizePayload(authorize ->
                 authorize
                         .anyRequest().authenticated() // blocks all other requests

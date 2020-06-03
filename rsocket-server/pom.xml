@@ -82,9 +82,9 @@
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>unsecured</id>
+<profiles>
+  <profile>
+      <id>default</id>
       <activation><activeByDefault>true</activeByDefault></activation>
       <build>
         <plugins>
@@ -95,6 +95,9 @@
               <excludes>
                 <exclude>io/pivotal/rsocketserver/RSocketSecurityConfig.java</exclude>
               </excludes>
+              <testExcludes>
+                <exclude>io/pivotal/rsocketserver/RSocketClientToSecuredServerITest.java</exclude>
+              </testExcludes>
             </configuration>
           </plugin>
         </plugins>
