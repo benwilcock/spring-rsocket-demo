@@ -6,8 +6,11 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.annotation.ConnectMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PreDestroy;
 import java.time.Duration;
@@ -33,7 +36,10 @@ public class RSocketController {
     }
 
     @ConnectMapping("shell-client")
-    void connectShellClientAndAskForTelemetry(RSocketRequester requester, @Payload String client) {
+    void connectShellClientAndAskForTelemetry(RSocketRequester requester,
+                                              @Payload String client,
+                                              @AuthenticationPrincipal Mono<UserDetails> user) {
+        user.log();
 
         requester.rsocket()
                 .onClose()
@@ -69,8 +75,9 @@ public class RSocketController {
      * @return Message
      */
     @MessageMapping("request-response")
-    Message requestResponse(final Message request) {
+    Message requestResponse(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received request-response request: {}", request);
+        log.info("From User: '{}' in Role '{}'", user.getUsername(), user.getAuthorities());
         // create a single Message and return it
         return new Message(SERVER, RESPONSE);
     }

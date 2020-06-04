@@ -31,8 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RSocketClientToServerITest {
 
     private static RSocketRequester requester;
-    private static UsernamePasswordMetadata user;
-    private static MimeType authentication;
+    private static UsernamePasswordMetadata credentials;
+    private static MimeType mimeType;
 
 
     @BeforeAll
@@ -41,13 +41,13 @@ public class RSocketClientToServerITest {
                                  @Autowired RSocketStrategies strategies) {
 
         SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
-        user = new UsernamePasswordMetadata("user", "pass");
-        authentication = MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
+        credentials = new UsernamePasswordMetadata("user", "pass");
+        mimeType = MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
         requester = builder
                 .setupRoute("shell-client")
                 .setupData(UUID.randomUUID().toString())
-                .setupMetadata(user, authentication)
+                .setupMetadata(credentials, mimeType)
                 .rsocketStrategies(b ->
                         b.encoder(new SimpleAuthenticationEncoder()))
                 .rsocketConnector(connector -> connector.acceptor(responder))
