@@ -6,7 +6,12 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.annotation.ConnectMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
@@ -15,6 +20,7 @@ import reactor.core.publisher.Mono;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -37,9 +43,7 @@ public class RSocketController {
 
     @ConnectMapping("shell-client")
     void connectShellClientAndAskForTelemetry(RSocketRequester requester,
-                                              @Payload String client,
-                                              @AuthenticationPrincipal Mono<UserDetails> user) {
-        user.log();
+                                              @Payload String client) {
 
         requester.rsocket()
                 .onClose()
@@ -74,12 +78,13 @@ public class RSocketController {
      * @param request
      * @return Message
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @MessageMapping("request-response")
-    Message requestResponse(final Message request, @AuthenticationPrincipal UserDetails user) {
+    Mono<Message> requestResponse(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received request-response request: {}", request);
-        log.info("From User: '{}' in Role '{}'", user.getUsername(), user.getAuthorities());
+        log.info("Request is from '{}' who has the role '{}'", user.getUsername(), user.getAuthorities());
         // create a single Message and return it
-        return new Message(SERVER, RESPONSE);
+        return Mono.just(new Message(SERVER, RESPONSE));
     }
 
     /**
@@ -89,8 +94,9 @@ public class RSocketController {
      * @param request
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("fire-and-forget")
-    public void fireAndForget(final Message request) {
+    public void fireAndForget(final Message request, @AuthenticationPrincipal Mono<UserDetails> user) {
         log.info("Received fire-and-forget request: {}", request);
     }
 
@@ -101,6 +107,7 @@ public class RSocketController {
      * @param request
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("stream")
     Flux<Message> stream(final Message request) {
         log.info("Received stream request: {}", request);
@@ -118,6 +125,7 @@ public class RSocketController {
      * @param settings
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @MessageMapping("channel")
     Flux<Message> channel(final Flux<Duration> settings) {
         log.info("Received channel request...");

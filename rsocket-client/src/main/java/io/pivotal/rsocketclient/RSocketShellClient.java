@@ -79,6 +79,23 @@ public class RSocketShellClient {
                 .subscribe();
     }
 
+    @ShellMethod("Logout and close your connection")
+    public void logout(){
+        if(userIsLoggedIn()){
+            this.s();
+            this.rsocketRequester.rsocket().dispose();
+            log.info("Logged out.");
+        }
+    }
+
+    private boolean userIsLoggedIn(){
+        if(null == this.rsocketRequester || this.rsocketRequester.rsocket().isDisposed()){
+            log.info("No connection. Did you login?");
+            return false;
+        }
+        return true;
+    }
+
     @ShellMethod("Send one request. One response will be printed.")
     public void requestResponse() throws InterruptedException {
 
@@ -137,18 +154,10 @@ public class RSocketShellClient {
     @ShellMethod("Stops Streams or Channels.")
     public void s() {
         if (null != disposable) {
-            log.info("Stopping the incoming stream.");
+            log.info("Stopping the current stream.");
             disposable.dispose();
             log.info("Stream stopped.");
         }
-    }
-
-    private boolean userIsLoggedIn(){
-        if(null == this.rsocketRequester){
-            log.info("No connection. Did you login?");
-            return false;
-        }
-        return true;
     }
 }
 
