@@ -58,10 +58,10 @@ public class RSocketClientToServerITest {
     @Test
     public void testFireAndForget() {
         // Send a fire-and-forget message
-        Mono<Message> result = requester
+        Mono<Void> result = requester
                 .route("fire-and-forget")
                 .data(new Message("TEST", "Fire-And-Forget"))
-                .retrieveMono(Message.class);
+                .retrieveMono(Void.class);
 
         // Assert that the result is a completed Mono.
         StepVerifier

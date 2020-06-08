@@ -2,7 +2,6 @@ package io.pivotal.rsocketserver;
 
 import io.pivotal.rsocketserver.data.Message;
 import io.rsocket.SocketAcceptor;
-import io.rsocket.exceptions.ApplicationErrorException;
 import io.rsocket.metadata.WellKnownMimeType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
@@ -27,11 +26,13 @@ import java.time.Duration;
 import java.util.UUID;
 
 @SpringBootTest
-public class RSocketClientToSecuredServerITest {
+public class RSocketClientDeniedConnectionToSecuredServerITest {
 
+    private static RSocketRequester.Builder reqbuilder;
     private static RSocketRequester requester;
     private static UsernamePasswordMetadata credentials;
     private static MimeType mimeType;
+    private static Integer theport;
 
 
     @BeforeAll
@@ -39,36 +40,35 @@ public class RSocketClientToSecuredServerITest {
                                  @LocalRSocketServerPort Integer port,
                                  @Autowired RSocketStrategies strategies) {
 
-        SocketAcceptor responder = RSocketMessageHandler.responder(strategies, new ClientHandler());
         mimeType = MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
+        reqbuilder = builder;
+        theport = port;
 
-        // *******  The user 'test' is NOT in the required 'USER' role! **********
-        credentials = new UsernamePasswordMetadata("test", "pass");
+        // *******  The user 'fake' is NOT in the user list! **********
+        credentials = new UsernamePasswordMetadata("fake", "pass");
 
-        requester = builder
+
+    }
+
+    @Test
+    public void testConnectionIsRefused(){
+        requester = reqbuilder
                 .setupRoute("shell-client")
                 .setupData(UUID.randomUUID().toString())
                 .setupMetadata(credentials, mimeType)
                 .rsocketStrategies(b ->
                         b.encoder(new SimpleAuthenticationEncoder()))
-
-                .rsocketConnector(connector -> connector.acceptor(responder))
-                .connectTcp("localhost", port)
+                .connectTcp("localhost", theport)
                 .block();
-    }
 
-    @Test
-    public void testFireAndForget() {
-        // Send a fire-and-forget message
         Mono<Void> result = requester
                 .route("fire-and-forget")
                 .data(new Message("TEST", "Fire-And-Forget"))
                 .retrieveMono(Void.class);
 
-        // Assert that the user 'test' is DENIED access to the method.
         StepVerifier
                 .create(result)
-                .verifyErrorMessage("Denied");
+                .verifyErrorMessage("Invalid Credentials");
     }
 
     @AfterAll
@@ -76,13 +76,4 @@ public class RSocketClientToSecuredServerITest {
         requester.rsocket().dispose();
     }
 
-    @Slf4j
-    static class ClientHandler {
-
-        @MessageMapping("client-status")
-        public Flux<String> statusUpdate(String status) {
-            log.info("Connection {}", status);
-            return Flux.interval(Duration.ofSeconds(5)).map(index -> String.valueOf(Runtime.getRuntime().freeMemory()));
-        }
-    }
 }
