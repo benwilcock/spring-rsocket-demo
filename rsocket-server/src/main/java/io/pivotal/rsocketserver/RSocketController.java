@@ -78,7 +78,7 @@ public class RSocketController {
      * @param request
      * @return Message
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("request-response")
     Mono<Message> requestResponse(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received request-response request: {}", request);
@@ -96,8 +96,9 @@ public class RSocketController {
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("fire-and-forget")
-    public void fireAndForget(final Message request, @AuthenticationPrincipal Mono<UserDetails> user) {
+    public Mono<Void> fireAndForget(final Message request, @AuthenticationPrincipal Mono<UserDetails> user) {
         log.info("Received fire-and-forget request: {}", request);
+        return Mono.empty();
     }
 
     /**
@@ -125,7 +126,7 @@ public class RSocketController {
      * @param settings
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("channel")
     Flux<Message> channel(final Flux<Duration> settings) {
         log.info("Received channel request...");

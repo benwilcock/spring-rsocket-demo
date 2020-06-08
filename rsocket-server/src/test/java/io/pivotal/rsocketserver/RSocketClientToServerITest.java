@@ -56,6 +56,20 @@ public class RSocketClientToServerITest {
     }
 
     @Test
+    public void testFireAndForget() {
+        // Send a fire-and-forget message
+        Mono<Message> result = requester
+                .route("fire-and-forget")
+                .data(new Message("TEST", "Fire-And-Forget"))
+                .retrieveMono(Message.class);
+
+        // Assert that the result is a completed Mono.
+        StepVerifier
+                .create(result)
+                .verifyComplete();
+    }
+
+    @Test
     public void testRequestGetsResponse() {
         // Send a request message
         Mono<Message> result = requester
@@ -71,20 +85,6 @@ public class RSocketClientToServerITest {
                     assertThat(message.getInteraction()).isEqualTo(RSocketController.RESPONSE);
                     assertThat(message.getIndex()).isEqualTo(0);
                 })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testFireAndForget() {
-        // Send a fire-and-forget message
-        Mono<Message> result = requester
-                .route("fire-and-forget")
-                .data(new Message("TEST", "Fire-And-Forget"))
-                .retrieveMono(Message.class);
-
-        // Assert that the result is a completed Mono.
-        StepVerifier
-                .create(result)
                 .verifyComplete();
     }
 

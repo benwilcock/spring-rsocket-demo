@@ -38,9 +38,9 @@ public class RSocketSecurityConfig {
                 .build();
 
         UserDetails admin = User.withDefaultPasswordEncoder()
-                .username("admin")
+                .username("test")
                 .password("pass")
-                .roles("ADMIN")
+                .roles("NONE")
                 .build();
 
         return new MapReactiveUserDetailsService(user, admin);
