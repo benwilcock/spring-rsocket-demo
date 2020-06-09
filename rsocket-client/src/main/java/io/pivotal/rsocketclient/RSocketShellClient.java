@@ -114,8 +114,6 @@ public class RSocketShellClient {
             log.info("Stream stopped.");
         }
     }
-
-
 }
 
 @Slf4j
