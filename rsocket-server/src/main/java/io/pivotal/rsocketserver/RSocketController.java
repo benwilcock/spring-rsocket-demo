@@ -77,7 +77,7 @@ public class RSocketController {
     @MessageMapping("request-response")
     Mono<Message> requestResponse(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received request-response request: {}", request);
-        log.info("Request is from '{}' who has the role '{}'", user.getUsername(), user.getAuthorities());
+        log.info("Request-response initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
         // create a single Message and return it
         return Mono.just(new Message(SERVER, RESPONSE));
     }
@@ -91,8 +91,9 @@ public class RSocketController {
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("fire-and-forget")
-    public Mono<Void> fireAndForget(final Message request, @AuthenticationPrincipal Mono<UserDetails> user) {
+    public Mono<Void> fireAndForget(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received fire-and-forget request: {}", request);
+        log.info("Fire-And-Forget initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
         return Mono.empty();
     }
 
@@ -105,8 +106,10 @@ public class RSocketController {
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("stream")
-    Flux<Message> stream(final Message request) {
+    Flux<Message> stream(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received stream request: {}", request);
+        log.info("Stream initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
+
         return Flux
                 // create a new indexed Flux emitting one element every second
                 .interval(Duration.ofSeconds(1))
@@ -123,8 +126,10 @@ public class RSocketController {
      */
     @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("channel")
-    Flux<Message> channel(final Flux<Duration> settings) {
+    Flux<Message> channel(final Flux<Duration> settings, @AuthenticationPrincipal UserDetails user) {
         log.info("Received channel request...");
+        log.info("Channel initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
+
         return settings
                 .doOnNext(setting -> log.info("Channel frequency setting is {} second(s).", setting.getSeconds()))
                 .doOnCancel(() -> log.warn("The client cancelled the channel."))

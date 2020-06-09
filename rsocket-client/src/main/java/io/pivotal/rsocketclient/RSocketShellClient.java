@@ -48,13 +48,6 @@ public class RSocketShellClient {
         this.rsocketStrategies = strategies;
     }
 
-    @PreDestroy
-    void shutdown() {
-        if (null != rsocketRequester) {
-            rsocketRequester.rsocket().dispose();
-        }
-    }
-
     @ShellMethod("Login with your username and password.")
     public void login(String username, String password) {
         log.info("Connecting using client ID: {} and username: {}", CLIENT_ID, username);
@@ -77,6 +70,7 @@ public class RSocketShellClient {
                 .subscribe();
     }
 
+    @PreDestroy
     @ShellMethod("Logout and close your connection")
     public void logout() {
         if (userIsLoggedIn()) {
@@ -96,7 +90,6 @@ public class RSocketShellClient {
 
     @ShellMethod("Send one request. One response will be printed.")
     public void requestResponse() throws InterruptedException {
-
         if (userIsLoggedIn()) {
             log.info("\nSending one request. Waiting for one response...");
             Message message = this.rsocketRequester
@@ -110,48 +103,51 @@ public class RSocketShellClient {
 
     @ShellMethod("Send one request. No response will be returned.")
     public void fireAndForget() throws InterruptedException {
-        userIsLoggedIn();
-        log.info("\nFire-And-Forget. Sending one request. Expect no response (check server console log)...");
-        this.rsocketRequester
-                .route("fire-and-forget")
-                .data(new Message(CLIENT, FIRE_AND_FORGET))
-                .send()
-                .block();
+        if (userIsLoggedIn()) {
+            log.info("\nFire-And-Forget. Sending one request. Expect no response (check server console log)...");
+            this.rsocketRequester
+                    .route("fire-and-forget")
+                    .data(new Message(CLIENT, FIRE_AND_FORGET))
+                    .send()
+                    .block();
+        }
     }
 
     @ShellMethod("Send one request. Many responses (stream) will be printed.")
     public void stream() {
-        userIsLoggedIn();
-        log.info("\n\n**** Request-Stream\n**** Send one request.\n**** Log responses.\n**** Type 's' to stop.");
-        disposable = this.rsocketRequester
-                .route("stream")
-                .data(new Message(CLIENT, STREAM))
-                .retrieveFlux(Message.class)
-                .subscribe(message -> log.info("Response: {} \n(Type 's' to stop.)", message));
+        if (userIsLoggedIn()) {
+            log.info("\n\n**** Request-Stream\n**** Send one request.\n**** Log responses.\n**** Type 's' to stop.");
+            disposable = this.rsocketRequester
+                    .route("stream")
+                    .data(new Message(CLIENT, STREAM))
+                    .retrieveFlux(Message.class)
+                    .subscribe(message -> log.info("Response: {} \n(Type 's' to stop.)", message));
+        }
     }
 
     @ShellMethod("Stream some settings to the server. Stream of responses will be printed.")
     public void channel() {
-        userIsLoggedIn();
-        log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Type 's' to stop.\n\n");
+        if (userIsLoggedIn()) {
+            log.info("\n\n***** Channel (bi-directional streams)\n***** Asking for a stream of messages.\n***** Type 's' to stop.\n\n");
 
-        Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
-        Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(5));
-        Mono<Duration> setting3 = Mono.just(Duration.ofSeconds(5)).delayElement(Duration.ofSeconds(15));
+            Mono<Duration> setting1 = Mono.just(Duration.ofSeconds(1));
+            Mono<Duration> setting2 = Mono.just(Duration.ofSeconds(3)).delayElement(Duration.ofSeconds(5));
+            Mono<Duration> setting3 = Mono.just(Duration.ofSeconds(5)).delayElement(Duration.ofSeconds(15));
 
-        Flux<Duration> settings = Flux.concat(setting1, setting2, setting3)
-                .doOnNext(d -> log.info("\nSending setting for a {}-second interval.\n", d.getSeconds()));
+            Flux<Duration> settings = Flux.concat(setting1, setting2, setting3)
+                    .doOnNext(d -> log.info("\nSending setting for a {}-second interval.\n", d.getSeconds()));
 
-        disposable = this.rsocketRequester
-                .route("channel")
-                .data(settings)
-                .retrieveFlux(Message.class)
-                .subscribe(message -> log.info("Received: {} \n(Type 's' to stop.)", message));
+            disposable = this.rsocketRequester
+                    .route("channel")
+                    .data(settings)
+                    .retrieveFlux(Message.class)
+                    .subscribe(message -> log.info("Received: {} \n(Type 's' to stop.)", message));
+        }
     }
 
     @ShellMethod("Stops Streams or Channels.")
     public void s() {
-        if (null != disposable) {
+        if (userIsLoggedIn() && null != disposable) {
             log.info("Stopping the current stream.");
             disposable.dispose();
             log.info("Stream stopped.");
