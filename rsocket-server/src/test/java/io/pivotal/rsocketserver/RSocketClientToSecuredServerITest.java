@@ -2,7 +2,6 @@ package io.pivotal.rsocketserver;
 
 import io.pivotal.rsocketserver.data.Message;
 import io.rsocket.SocketAcceptor;
-import io.rsocket.exceptions.ApplicationErrorException;
 import io.rsocket.metadata.WellKnownMimeType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
