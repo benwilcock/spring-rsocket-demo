@@ -7,12 +7,10 @@ import io.rsocket.metadata.WellKnownMimeType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.rsocket.metadata.SimpleAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.shell.standard.ShellComponent;
@@ -52,13 +50,13 @@ public class RSocketShellClient {
 
     @PreDestroy
     void shutdown() {
-        if(null != rsocketRequester) {
+        if (null != rsocketRequester) {
             rsocketRequester.rsocket().dispose();
         }
     }
 
     @ShellMethod("Login with your username and password.")
-    public void login(String username, String password){
+    public void login(String username, String password) {
         log.info("Connecting using client ID: {} and username: {}", CLIENT_ID, username);
         SocketAcceptor responder = RSocketMessageHandler.responder(rsocketStrategies, new ClientHandler());
         UsernamePasswordMetadata user = new UsernamePasswordMetadata(username, password);
@@ -80,16 +78,16 @@ public class RSocketShellClient {
     }
 
     @ShellMethod("Logout and close your connection")
-    public void logout(){
-        if(userIsLoggedIn()){
+    public void logout() {
+        if (userIsLoggedIn()) {
             this.s();
             this.rsocketRequester.rsocket().dispose();
             log.info("Logged out.");
         }
     }
 
-    private boolean userIsLoggedIn(){
-        if(null == this.rsocketRequester || this.rsocketRequester.rsocket().isDisposed()){
+    private boolean userIsLoggedIn() {
+        if (null == this.rsocketRequester || this.rsocketRequester.rsocket().isDisposed()) {
             log.info("No connection. Did you login?");
             return false;
         }
@@ -99,7 +97,7 @@ public class RSocketShellClient {
     @ShellMethod("Send one request. One response will be printed.")
     public void requestResponse() throws InterruptedException {
 
-        if(userIsLoggedIn()){
+        if (userIsLoggedIn()) {
             log.info("\nSending one request. Waiting for one response...");
             Message message = this.rsocketRequester
                     .route("request-response")
