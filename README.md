@@ -9,7 +9,7 @@ This code accompanies my RSocket blog series over on [spring.io][me].
 5. [RSocket Channel With Spring Boot][five]
 6. [RSocket Servers Calling Clients][six]
 7. [Testing RSocket Responders][seven]
-8. Securing RSocket with Spring Security
+8. RSocket with Spring Security
 
 For latest updates, news, and interestings, follow me on [Twitter][twitter]
 
@@ -20,6 +20,7 @@ For latest updates, news, and interestings, follow me on [Twitter][twitter]
 [five]: https://spring.io/blog/2020/04/06/getting-started-with-rsocket-spring-boot-channels
 [six]: https://spring.io/blog/2020/05/12/getting-started-with-rsocket-servers-calling-clients
 [seven]: https://spring.io/blog/2020/05/25/getting-started-with-rsocket-testing-spring-boot-responders
+[eight]: https://spring.io/blog
 [me]: https://spring.io/team/benwilcock
 [twitter]: https://twitter.com/benbravo73
 

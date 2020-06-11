@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -189,13 +190,13 @@ public class RSocketServerToClientITest {
         }
 
         @Bean
-        public RSocketMessageHandler serverMessageHandler(RSocketStrategies strategies) {
+        public RSocketMessageHandler serverMessageHandler(@Qualifier("testStrategies") RSocketStrategies strategies) {
             RSocketMessageHandler handler = new RSocketMessageHandler();
             handler.setRSocketStrategies(strategies);
             return handler;
         }
 
-        @Bean
+        @Bean("testStrategies")
         public RSocketStrategies rsocketStrategies() {
             return RSocketStrategies.create();
         }

@@ -6,8 +6,12 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.annotation.ConnectMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PreDestroy;
 import java.time.Duration;
@@ -33,7 +37,8 @@ public class RSocketController {
     }
 
     @ConnectMapping("shell-client")
-    void connectShellClientAndAskForTelemetry(RSocketRequester requester, @Payload String client) {
+    void connectShellClientAndAskForTelemetry(RSocketRequester requester,
+                                              @Payload String client) {
 
         requester.rsocket()
                 .onClose()
@@ -68,11 +73,13 @@ public class RSocketController {
      * @param request
      * @return Message
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("request-response")
-    Message requestResponse(final Message request) {
+    Mono<Message> requestResponse(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received request-response request: {}", request);
+        log.info("Request-response initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
         // create a single Message and return it
-        return new Message(SERVER, RESPONSE);
+        return Mono.just(new Message(SERVER, RESPONSE));
     }
 
     /**
@@ -82,9 +89,12 @@ public class RSocketController {
      * @param request
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("fire-and-forget")
-    public void fireAndForget(final Message request) {
+    public Mono<Void> fireAndForget(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received fire-and-forget request: {}", request);
+        log.info("Fire-And-Forget initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
+        return Mono.empty();
     }
 
     /**
@@ -94,9 +104,12 @@ public class RSocketController {
      * @param request
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("stream")
-    Flux<Message> stream(final Message request) {
+    Flux<Message> stream(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received stream request: {}", request);
+        log.info("Stream initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
+
         return Flux
                 // create a new indexed Flux emitting one element every second
                 .interval(Duration.ofSeconds(1))
@@ -111,9 +124,12 @@ public class RSocketController {
      * @param settings
      * @return
      */
+    @PreAuthorize("hasRole('ROLE_USER')")
     @MessageMapping("channel")
-    Flux<Message> channel(final Flux<Duration> settings) {
+    Flux<Message> channel(final Flux<Duration> settings, @AuthenticationPrincipal UserDetails user) {
         log.info("Received channel request...");
+        log.info("Channel initiated by '{}' in the role '{}'", user.getUsername(), user.getAuthorities());
+
         return settings
                 .doOnNext(setting -> log.info("Channel frequency setting is {} second(s).", setting.getSeconds()))
                 .doOnCancel(() -> log.warn("The client cancelled the channel."))

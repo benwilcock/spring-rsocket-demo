@@ -2,7 +2,6 @@ package io.pivotal.rsocketserver;
 
 import io.rsocket.core.RSocketServer;
 import io.rsocket.core.Resume;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.rsocket.server.RSocketServerCustomizer;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
