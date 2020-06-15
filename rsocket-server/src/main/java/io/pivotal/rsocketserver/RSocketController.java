@@ -73,7 +73,7 @@ public class RSocketController {
      * @param request
      * @return Message
      */
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     @MessageMapping("request-response")
     Mono<Message> requestResponse(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received request-response request: {}", request);
@@ -89,7 +89,7 @@ public class RSocketController {
      * @param request
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     @MessageMapping("fire-and-forget")
     public Mono<Void> fireAndForget(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received fire-and-forget request: {}", request);
@@ -104,7 +104,7 @@ public class RSocketController {
      * @param request
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     @MessageMapping("stream")
     Flux<Message> stream(final Message request, @AuthenticationPrincipal UserDetails user) {
         log.info("Received stream request: {}", request);
@@ -124,7 +124,7 @@ public class RSocketController {
      * @param settings
      * @return
      */
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     @MessageMapping("channel")
     Flux<Message> channel(final Flux<Duration> settings, @AuthenticationPrincipal UserDetails user) {
         log.info("Received channel request...");

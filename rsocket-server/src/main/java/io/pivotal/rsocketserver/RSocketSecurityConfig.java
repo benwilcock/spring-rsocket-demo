@@ -50,9 +50,7 @@ public class RSocketSecurityConfig {
     PayloadSocketAcceptorInterceptor authorization(RSocketSecurity security) {
         security.authorizePayload(authorize ->
                 authorize
-                        .setup().authenticated() // blocks connections
-                        .anyExchange().authenticated() // blocks connections
-                        .anyRequest().authenticated() // blocks all other requests
+                        .anyExchange().authenticated() // all connections, exchanges.
         ).simpleAuthentication(Customizer.withDefaults());
         return security.build();
     }
