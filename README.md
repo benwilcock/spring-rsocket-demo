@@ -44,16 +44,8 @@ Running realistic tests on responders isn’t difficult with Spring Boot. In thi
 
 Spring Security simplifies the process of securing your RSocket applications. In this exercise, you’ll add the required dependencies, configure server-side security, pass credentials, and add authentication and authorization features to your RSocket applications.
 
-
-## Additional Resources
-
-Here are a few additional sites that can help you on your RSocket journey.
-
-    [All my Spring articles on spring.io.][me]
-
 For latest updates, news, and interestings, follow me on [Twitter][twitter]
 
-[me]: https://spring.io/team/benwilcock
 [twitter]: https://twitter.com/benbravo73
 
 
