@@ -1,4 +1,4 @@
-# Getting Started With RSocket On Spring Boot
+# Getting Started With RSocket On Spring Boot (Series)
 
 In the diverse world of microservices, working exclusively with the HTTP protocol can have some challenges. RSocket is a new messaging protocol that’s designed to solve some of these challenges. RSocket is a modern, flexible protocol that can do bi-directional communication delivered via TCP or WebSockets. RSocket brings modern features like multiplexing, back-pressure, resumption, routing, and several distinct messaging ‘modes’ including fire-and-forget, request-response, streaming, and channels. 
 
@@ -8,7 +8,7 @@ In this series of exercises, you’ll learn how to get started with RSocket usin
 
 Give RSocket a try, and I promise, you’ll be the envy of all your friends and co-workers!
 
-## Articles
+## All The Articles
 
 Each article is around 6-8 minutes reading time and between 10-20 minutes coding time.
 
