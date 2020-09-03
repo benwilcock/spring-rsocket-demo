@@ -28,7 +28,7 @@ In this exercise, you’ll upgrade your client and server by adding ‘fire-and-
 
 You’ll now add streaming to your client and server applications and observe the results for yourself by starting a stream.
 
-### [Getting Started With RSocket: Spring Boot Channels](https://github.com/benwilcock/spring-rsocket-demo/blob/master)
+### [Getting Started With RSocket: Spring Boot Channels](https://spring.io/blog/2020/04/06/getting-started-with-rsocket-spring-boot-channels)
 
 Channels add bi-directional streams to your applications, so clients and servers can stay in constant touch. This tutorial adds channels to your code.
 
