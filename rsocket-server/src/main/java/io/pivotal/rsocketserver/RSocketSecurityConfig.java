@@ -32,26 +32,29 @@ public class RSocketSecurityConfig {
     MapReactiveUserDetailsService authentication() {
         //This is NOT intended for production use (it is intended for getting started experience only)
         UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("pass")
-                .roles("USER")
-                .build();
+            .username("user")
+            .password("pass")
+            .roles("USER")
+            .build();
 
         UserDetails admin = User.withDefaultPasswordEncoder()
-                .username("test")
-                .password("pass")
-                .roles("NONE")
-                .build();
+            .username("test")
+            .password("pass")
+            .roles("NONE")
+            .build();
 
         return new MapReactiveUserDetailsService(user, admin);
     }
 
     @Bean
-    PayloadSocketAcceptorInterceptor authorization(RSocketSecurity security) {
-        security.authorizePayload(authorize ->
+    PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
+        rsocket
+            .authorizePayload(authorize ->
                 authorize
-                        .anyExchange().authenticated() // all connections, exchanges.
-        ).simpleAuthentication(Customizer.withDefaults());
-        return security.build();
+                    .anyRequest().authenticated()
+                    .anyExchange().permitAll()
+            )
+            .basicAuthentication(Customizer.withDefaults());
+        return rsocket.build();
     }
 }
